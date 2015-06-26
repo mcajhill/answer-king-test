@@ -16,10 +16,12 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.util.NestedServletException;
 
 import java.math.BigDecimal;
 
 import static answer.king.util.TestUtil.*;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -33,6 +35,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringApplicationConfiguration(classes = AppConfig.class)
 @WebAppConfiguration
 public class ItemControllerTest {
+
+    private final MockHttpServletRequestBuilder POST_REQUEST = post("/item").contentType(JSON_UTF8_MEDIA_TYPE);
+    private final MockHttpServletRequestBuilder GET_REQUEST = get("/item").contentType(JSON_UTF8_MEDIA_TYPE);
 
     private MockMvc mockMvc;
     private Item item;
@@ -59,11 +64,8 @@ public class ItemControllerTest {
 
     @Test
     public void getAllTest() throws Exception {
-        // setup
-        MockHttpServletRequestBuilder getRequest = get("/item").contentType(JSON_UTF8_MEDIA_TYPE);
-
         // execution
-        mockMvc.perform(getRequest)
+        mockMvc.perform(GET_REQUEST)
             .andExpect(status().isOk())
             .andExpect(content().contentType(JSON_UTF8_MEDIA_TYPE));
 
@@ -73,9 +75,8 @@ public class ItemControllerTest {
     }
 
     @Test
-    public void createTest() throws Exception {
+    public void createWithValidItemTest() throws Exception {
         // setup
-        MockHttpServletRequestBuilder postRequest = post("/item").contentType(JSON_UTF8_MEDIA_TYPE);
         String itemJson = convertItemToJson(item);
 
         Item allocatedItem = item;
@@ -85,7 +86,7 @@ public class ItemControllerTest {
 
         // execution
         MvcResult result =
-            mockMvc.perform(postRequest.content(itemJson))
+            mockMvc.perform(POST_REQUEST.content(itemJson))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(JSON_UTF8_MEDIA_TYPE))
                 .andReturn();
@@ -95,8 +96,26 @@ public class ItemControllerTest {
 
         // verification
         assertNotNull(parsedItem);
-        assertNotNull(allocatedItem.getId());
+        assertEquals(Long.valueOf(1L), item.getId());
         verify(itemService, times(1)).save(item);
+        verifyNoMoreInteractions(itemService);
+    }
+
+    @Test(expected = NestedServletException.class)
+    public void createWithInvalidItemTest() throws Exception {
+        // setup
+        Item invalidItem = new Item();
+        String invalidItemJson = convertItemToJson(invalidItem);
+
+        IllegalArgumentException exception = new IllegalArgumentException("Item must have a valid name and price");
+        when(itemService.save(invalidItem)).thenThrow(exception);
+
+        // execution
+        mockMvc.perform(POST_REQUEST.content(invalidItemJson))
+            .andExpect(status().isInternalServerError());
+
+        // verification
+        verify(itemService, times(1)).save(invalidItem);
         verifyNoMoreInteractions(itemService);
     }
 }

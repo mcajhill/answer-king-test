@@ -2,6 +2,7 @@ package answer.king.service;
 
 import answer.king.model.Item;
 import answer.king.repo.ItemRepository;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -26,13 +27,11 @@ public class ItemServiceTest {
     @Mock
     private ItemRepository itemRepository;
 
-    @Mock
-    private Item item;
-
 
     @Test
     public void saveTest() {
         // setup
+        Item item = new Item();
         item.setId(1L);
         item.setName("Burger");
         item.setPrice(new BigDecimal("0.99"));

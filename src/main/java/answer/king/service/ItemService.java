@@ -1,5 +1,6 @@
 package answer.king.service;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,6 +26,15 @@ public class ItemService {
 	}
 
 	public Item save(Item item) {
+        String name = item.getName();
+        BigDecimal price = item.getPrice();
+
+        boolean invalidName = ( name == null || name.isEmpty() );
+        boolean invalidPrice = ( price == null || price.equals(BigDecimal.ZERO) );
+
+        if ( invalidName || invalidPrice)
+            throw new IllegalArgumentException("Item must have a valid name and price");
+
 		return itemRepository.save(item);
 	}
 }

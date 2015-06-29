@@ -2,6 +2,7 @@ package answer.king.controller;
 
 import java.util.List;
 
+import answer.king.throwables.exception.InvalidItemException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,7 +24,7 @@ public class ItemController {
 	}
 
 	@RequestMapping(method = RequestMethod.POST)
-	public Item create(@RequestBody Item item) {
+	public Item create(@RequestBody Item item) throws InvalidItemException {
 		return itemService.save(item);
 	}
 }

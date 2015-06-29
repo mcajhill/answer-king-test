@@ -46,4 +46,24 @@ public class Order {
 	public void setItems(List<Item> items) {
 		this.items = items;
 	}
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Order)) return false;
+
+        Order order = (Order) o;
+
+        return !(getId() != null ? !getId().equals(order.getId()) : order.getId() != null) &&
+            !(getPaid() != null ? !getPaid().equals(order.getPaid()) : order.getPaid() != null) &&
+            !(getItems() != null ? !getItems().equals(order.getItems()) : order.getItems() != null);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = getId() != null ? getId().hashCode() : 0;
+        result = 31 * result + (getPaid() != null ? getPaid().hashCode() : 0);
+        result = 31 * result + (getItems() != null ? getItems().hashCode() : 0);
+        return result;
+    }
 }

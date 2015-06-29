@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
+import answer.king.throwables.exception.InsufficientFundsException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,12 +46,19 @@ public class OrderService {
 		orderRepository.save(order);
 	}
 
-	public Reciept pay(Long id, BigDecimal payment) {
+	public Reciept pay(Long id, BigDecimal payment) throws InsufficientFundsException {
 		Order order = orderRepository.findOne(id);
 
 		Reciept reciept = new Reciept();
 		reciept.setPayment(payment);
 		reciept.setOrder(order);
-		return reciept;
+
+        boolean invalidPayment = reciept.getChange().compareTo(BigDecimal.ZERO) < 0;
+
+        if (invalidPayment)
+            throw new InsufficientFundsException("The payment must cover the cost of the order.");
+
+        order.setPaid(true);
+        return reciept;
 	}
 }

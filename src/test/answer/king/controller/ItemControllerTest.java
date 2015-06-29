@@ -3,6 +3,7 @@ package answer.king.controller;
 import answer.king.config.AppConfig;
 import answer.king.model.Item;
 import answer.king.service.ItemService;
+import answer.king.throwables.exception.InvalidItemException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,8 +19,7 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.util.NestedServletException;
 
-import java.math.BigDecimal;
-
+import static answer.king.util.ModelUtil.createBurgerItem;
 import static answer.king.util.TestUtil.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -28,6 +28,7 @@ import static org.mockito.MockitoAnnotations.initMocks;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
@@ -56,10 +57,7 @@ public class ItemControllerTest {
         reset(itemService);
 
         mockMvc = MockMvcBuilders.standaloneSetup(itemController).build();
-
-        item = new Item();
-        item.setName("Burger");
-        item.setPrice(new BigDecimal("1.99"));
+        item = createBurgerItem(null);
     }
 
     @Test
@@ -77,26 +75,18 @@ public class ItemControllerTest {
     @Test
     public void createWithValidItemTest() throws Exception {
         // setup
-        String itemJson = convertItemToJson(item);
-
-        Item allocatedItem = item;
-        item.setId(1L);
-
-        when(itemService.save(item)).thenReturn(allocatedItem);
+        String itemJson = convertObjectToJson(item);
+        when(itemService.save(item)).thenReturn(item);
 
         // execution
-        MvcResult result =
-            mockMvc.perform(POST_REQUEST.content(itemJson))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(JSON_UTF8_MEDIA_TYPE))
-                .andReturn();
+        mockMvc.perform(POST_REQUEST.content(itemJson))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(JSON_UTF8_MEDIA_TYPE))
+            .andExpect(jsonPath("$").exists())
+            .andExpect(jsonPath("$.id").value(1))
+            .andExpect(jsonPath("$.name").value("Burger"))
+            .andExpect(jsonPath("$.price").value(1.99));
 
-        String responseBody = result.getResponse().getContentAsString();
-        Item parsedItem = convertJsonToItem(responseBody);
-
-        // verification
-        assertNotNull(parsedItem);
-        assertEquals(Long.valueOf(1L), item.getId());
         verify(itemService, times(1)).save(item);
         verifyNoMoreInteractions(itemService);
     }
@@ -105,9 +95,9 @@ public class ItemControllerTest {
     public void createWithInvalidItemTest() throws Exception {
         // setup
         Item invalidItem = new Item();
-        String invalidItemJson = convertItemToJson(invalidItem);
+        String invalidItemJson = convertObjectToJson(invalidItem);
 
-        IllegalArgumentException exception = new IllegalArgumentException("Item must have a valid name and price");
+        InvalidItemException exception = new InvalidItemException("Item must have a valid name and price");
         when(itemService.save(invalidItem)).thenThrow(exception);
 
         // execution

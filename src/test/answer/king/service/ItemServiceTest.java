@@ -2,7 +2,9 @@ package answer.king.service;
 
 import answer.king.model.Item;
 import answer.king.repo.ItemRepository;
-import answer.king.throwables.exception.InvalidItemException;
+import answer.king.throwables.exception.AnswerKingException;
+import answer.king.throwables.exception.InvalidItemNameException;
+import answer.king.throwables.exception.InvalidItemPriceException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -10,6 +12,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import static answer.king.util.ModelUtil.createBurgerItem;
@@ -35,7 +38,7 @@ public class ItemServiceTest {
     }
 
     @Test
-    public void saveValidItemTest() throws Exception {
+    public void saveValidNameTest() throws Exception {
         // setup
         Item item = createBurgerItem(null);
         when(itemRepository.save(item)).thenReturn(item);
@@ -51,8 +54,8 @@ public class ItemServiceTest {
         verifyNoMoreInteractions(itemRepository);
     }
 
-    @Test(expected = InvalidItemException.class)
-    public void saveInvalidItemTest() throws Exception {
+    @Test(expected = InvalidItemNameException.class)
+    public void saveInvalidNameTest() throws AnswerKingException {
         // setup
         Item item = new Item();
 
@@ -61,6 +64,46 @@ public class ItemServiceTest {
 
         // verification
         verify(itemRepository, times(1)).save(item);
+        verifyNoMoreInteractions(itemRepository);
+    }
+
+    @Test
+    public void updateValidPriceTest() throws Exception {
+        // setup
+        Item item = createBurgerItem(null);
+
+        final Long ITEM_ID = item.getId();
+        final BigDecimal UPDATED_PRICE = new BigDecimal("4.99");
+
+        when(itemRepository.findOne(ITEM_ID)).thenReturn(item);
+        when(itemRepository.save(item)).thenReturn(item);
+
+        // execution
+        Item result = itemService.updatePrice(ITEM_ID, UPDATED_PRICE);
+
+        // verification
+        assertNotNull(result);
+        assertEquals(UPDATED_PRICE, result.getPrice());
+
+        verify(itemRepository, times(1)).findOne(ITEM_ID);
+        verify(itemRepository, times(1)).save(item);
+    }
+
+    @Test(expected = InvalidItemPriceException.class)
+    public void updateInvalidPriceTest() throws AnswerKingException {
+        // setup
+        Item item = createBurgerItem(null);
+
+        final Long ITEM_ID = item.getId();
+        final BigDecimal UPDATED_PRICE = BigDecimal.TEN.negate();
+
+        when(itemRepository.findOne(ITEM_ID)).thenReturn(item);
+
+        // execution
+        itemService.updatePrice(ITEM_ID, UPDATED_PRICE);
+
+        // verification
+        verify(itemRepository, times(1)).findOne(ITEM_ID);
         verifyNoMoreInteractions(itemRepository);
     }
 

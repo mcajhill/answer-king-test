@@ -3,7 +3,8 @@ package answer.king.controller;
 import answer.king.config.AppConfig;
 import answer.king.model.Item;
 import answer.king.service.ItemService;
-import answer.king.throwables.exception.InvalidItemException;
+import answer.king.throwables.exception.InvalidItemNameException;
+import answer.king.throwables.exception.InvalidItemPriceException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -14,22 +15,19 @@ import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.util.NestedServletException;
 
+import java.math.BigDecimal;
+
 import static answer.king.util.ModelUtil.createBurgerItem;
-import static answer.king.util.TestUtil.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static answer.king.util.TestUtil.JSON_UTF8_MEDIA_TYPE;
+import static answer.king.util.TestUtil.convertObjectToJson;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -37,8 +35,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebAppConfiguration
 public class ItemControllerTest {
 
-    private final MockHttpServletRequestBuilder POST_REQUEST = post("/item").contentType(JSON_UTF8_MEDIA_TYPE);
     private final MockHttpServletRequestBuilder GET_REQUEST = get("/item").contentType(JSON_UTF8_MEDIA_TYPE);
+    private final MockHttpServletRequestBuilder POST_REQUEST = post("/item").contentType(JSON_UTF8_MEDIA_TYPE);
 
     private MockMvc mockMvc;
     private Item item;
@@ -73,7 +71,7 @@ public class ItemControllerTest {
     }
 
     @Test
-    public void createWithValidItemTest() throws Exception {
+    public void createWithValidNameTest() throws Exception {
         // setup
         String itemJson = convertObjectToJson(item);
         when(itemService.save(item)).thenReturn(item);
@@ -92,13 +90,12 @@ public class ItemControllerTest {
     }
 
     @Test(expected = NestedServletException.class)
-    public void createWithInvalidItemTest() throws Exception {
+    public void createWithInvalidNameTest() throws Exception {
         // setup
         Item invalidItem = new Item();
         String invalidItemJson = convertObjectToJson(invalidItem);
 
-        InvalidItemException exception = new InvalidItemException("Item must have a valid name and price");
-        when(itemService.save(invalidItem)).thenThrow(exception);
+        when(itemService.save(invalidItem)).thenThrow(new InvalidItemNameException());
 
         // execution
         mockMvc.perform(POST_REQUEST.content(invalidItemJson))
@@ -106,6 +103,55 @@ public class ItemControllerTest {
 
         // verification
         verify(itemService, times(1)).save(invalidItem);
+        verifyNoMoreInteractions(itemService);
+    }
+
+    @Test
+    public void updateValidPriceTest() throws Exception {
+        // setup
+        Long itemId = item.getId();
+
+        BigDecimal updatedPrice = new BigDecimal("10.00");
+        item.setPrice(updatedPrice);
+
+        when(itemService.updatePrice(itemId, updatedPrice)).thenReturn(item);
+
+        String path = "/item/" + itemId + "/updatePrice";
+        String content = convertObjectToJson(updatedPrice);
+
+        MockHttpServletRequestBuilder PUT_REQUEST = put(path).contentType(JSON_UTF8_MEDIA_TYPE);
+
+        // execution
+        mockMvc.perform(PUT_REQUEST.content(content))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(JSON_UTF8_MEDIA_TYPE))
+            .andExpect(jsonPath("$.price").value(updatedPrice.doubleValue()));
+
+        // verification
+        verify(itemService, times(1)).updatePrice(itemId, updatedPrice);
+        verifyNoMoreInteractions(itemService);
+    }
+
+    @Test(expected = NestedServletException.class)
+    public void updateInvalidPriceTest() throws Exception {
+        // setup
+        Long itemId = item.getId();
+
+        BigDecimal invalidPrice = BigDecimal.TEN.negate();
+        item.setPrice(invalidPrice);
+
+        when(itemService.updatePrice(itemId, invalidPrice)).thenThrow(new InvalidItemPriceException());
+
+        String path = "/item/" + itemId + "/updatePrice";
+        String content = convertObjectToJson(invalidPrice);
+
+        MockHttpServletRequestBuilder PUT_REQUEST = put(path).contentType(JSON_UTF8_MEDIA_TYPE);
+
+        // execution
+        mockMvc.perform(PUT_REQUEST.content(content))
+            .andExpect(status().isInternalServerError());
+
+        verify(itemService, times(1)).updatePrice(itemId, invalidPrice);
         verifyNoMoreInteractions(itemService);
     }
 }

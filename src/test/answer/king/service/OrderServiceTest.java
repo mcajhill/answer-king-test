@@ -140,7 +140,7 @@ public class OrderServiceTest {
     }
 
     @Test(expected = InsufficientFundsException.class)
-    public void payInvalidAmountTest() throws Exception {
+    public void payInvalidAmountTest() throws InsufficientFundsException {
         // setup
         Long orderId = 1L;
         BigDecimal payment = BigDecimal.ZERO;

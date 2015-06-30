@@ -61,7 +61,7 @@ public class OrderService {
         boolean invalidPayment = reciept.getChange().compareTo(BigDecimal.ZERO) < 0;
 
         if (invalidPayment)
-            throw new InsufficientFundsException("The payment must cover the cost of the order.");
+            throw new InsufficientFundsException();
 
         order.setReciept(reciept);
         order.setPaid(true);

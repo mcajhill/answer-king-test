@@ -150,10 +150,7 @@ public class OrderControllerTest {
 
         Order order = createBurgerOrder(orderId);
 
-        InsufficientFundsException exception =
-            new InsufficientFundsException("The payment must cover the cost of the order.");
-
-        when(orderService.pay(orderId, payment)).thenThrow(exception);
+        when(orderService.pay(orderId, payment)).thenThrow(new InsufficientFundsException());
 
         String path = "/order/" + order.getId() + "/pay";
         final MockHttpServletRequestBuilder PUT_REQUEST = put(path).contentType(JSON_UTF8_MEDIA_TYPE);

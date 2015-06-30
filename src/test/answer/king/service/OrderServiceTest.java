@@ -6,6 +6,7 @@ import answer.king.model.Order;
 import answer.king.model.Reciept;
 import answer.king.repo.ItemRepository;
 import answer.king.repo.OrderRepository;
+import answer.king.repo.RecieptRepository;
 import answer.king.throwables.exception.InsufficientFundsException;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,6 +35,9 @@ public class OrderServiceTest {
 
     @Mock
     private ItemRepository itemRepository;
+
+    @Mock
+    private RecieptRepository recieptRepository;
 
 
     @Before
@@ -112,15 +116,24 @@ public class OrderServiceTest {
         Order order = createEmptyOrder(orderId);
         order.setItems(createItemsList(order));
 
+        Reciept reciept = createReciept(order, payment);
+        reciept.setId(1L);
+        order.setReciept(reciept);
+
         when(orderRepository.findOne(orderId)).thenReturn(order);
+        when(recieptRepository.save( any(Reciept.class) )).thenReturn(reciept);
 
         // execution
         Reciept result = orderService.pay(orderId, payment);
+        BigDecimal change = result.getChange();
+        Order orderResult = result.getOrder();
 
         // verification
-        assertEquals(result.getOrder(), order);
+        assertEquals(orderResult, order);
         assertEquals(result.getPayment(), payment);
-        assertEquals(order.getPaid(), true);
+        assertEquals(result.getId(), reciept.getId());
+        assertEquals(orderResult.getPaid(), true);
+        assertTrue(change.compareTo(BigDecimal.ZERO) >= 0);
 
         verify(orderRepository, times(1)).findOne(orderId);
         verifyNoMoreInteractions(orderRepository);

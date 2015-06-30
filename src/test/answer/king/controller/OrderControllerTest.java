@@ -12,8 +12,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -94,8 +92,8 @@ public class OrderControllerTest {
         mockMvc.perform(CREATE_REQUEST)
             .andExpect(status().isOk())
             .andExpect(jsonPath("$").exists())              // order != null
-            .andExpect(jsonPath("paid").value(false))       // paid == false
-            .andExpect(jsonPath("items").doesNotExist())    // items == null
+            .andExpect(jsonPath("$.paid").value(false))
+            .andExpect(jsonPath("$.items").doesNotExist())    // items == null
             .andReturn();
     }
 
@@ -138,10 +136,10 @@ public class OrderControllerTest {
         mockMvc.perform(PUT_REQUEST.content(payment.toString()))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.payment", is(payment.doubleValue())))
+            .andExpect(jsonPath("$.change", is(change)))
             .andExpect(jsonPath("$.order.paid", is(true)))
             .andExpect(jsonPath("$.order.items[0].name", is("Burger")))
-            .andExpect(jsonPath("$.order.items[0].price", is(burgerPrice)))
-            .andExpect(jsonPath("$.change", is(change)));
+            .andExpect(jsonPath("$.order.items[0].price", is(burgerPrice)));
     }
 
     @Test(expected = NestedServletException.class)

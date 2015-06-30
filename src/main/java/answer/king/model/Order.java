@@ -1,14 +1,11 @@
 package answer.king.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.util.List;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
+import javax.persistence.*;
+
 
 @Entity
 @Table(name = "T_ORDER")
@@ -20,8 +17,13 @@ public class Order {
 
     private Boolean paid = false;
 
-    @OneToMany(mappedBy = "order", cascade = { CascadeType.ALL, CascadeType.PERSIST })
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "order", cascade = { CascadeType.ALL, CascadeType.PERSIST })
     private List<Item> items;
+
+    @JsonIgnore
+    @OneToOne(mappedBy = "order", cascade = { CascadeType.ALL })
+    private Reciept reciept;
+
 
 	public Long getId() {
 		return id;
@@ -46,6 +48,14 @@ public class Order {
 	public void setItems(List<Item> items) {
 		this.items = items;
 	}
+
+    public Reciept getReciept() {
+        return reciept;
+    }
+
+    public void setReciept(Reciept reciept) {
+        this.reciept = reciept;
+    }
 
     @Override
     public boolean equals(Object o) {

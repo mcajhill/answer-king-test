@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
+import answer.king.repo.RecieptRepository;
 import answer.king.throwables.exception.InsufficientFundsException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,10 @@ public class OrderService {
 
 	@Autowired
 	private ItemRepository itemRepository;
+
+    @Autowired
+    private RecieptRepository recieptRepository;
+
 
 	public List<Order> getAll() {
 		List<Order> orders = new ArrayList<>();
@@ -58,7 +63,9 @@ public class OrderService {
         if (invalidPayment)
             throw new InsufficientFundsException("The payment must cover the cost of the order.");
 
+        order.setReciept(reciept);
         order.setPaid(true);
-        return reciept;
+
+        return recieptRepository.save(reciept);
 	}
 }

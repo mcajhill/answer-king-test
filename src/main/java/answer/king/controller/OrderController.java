@@ -3,7 +3,7 @@ package answer.king.controller;
 import answer.king.model.Order;
 import answer.king.model.Reciept;
 import answer.king.service.OrderService;
-import answer.king.throwables.exception.InsufficientFundsException;
+import answer.king.throwables.exception.AnswerKingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,7 +33,7 @@ public class OrderController {
 	}
 
 	@RequestMapping(value = "/{id}/pay", method = RequestMethod.PUT)
-	public Reciept pay(@PathVariable("id") Long id, @RequestBody BigDecimal payment) throws InsufficientFundsException {
+	public Reciept pay(@PathVariable("id") Long id, @RequestBody BigDecimal payment) throws AnswerKingException {
 		return orderService.pay(id, payment);
 	}
 }

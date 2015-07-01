@@ -119,27 +119,21 @@ public class OrderControllerTest {
         BigDecimal payment = new BigDecimal("10.00");
 
         Order order = createBurgerOrder(orderId);
-
         Reciept reciept = createReciept(order, payment);
-        reciept.getOrder().setPaid(true);
 
-        when(orderService.pay(orderId, payment))
-            .thenReturn(reciept);
+        when(orderService.pay(orderId, payment)).thenReturn(reciept);
 
         String path = "/order/" + order.getId() + "/pay";
         final MockHttpServletRequestBuilder PUT_REQUEST = put(path).contentType(JSON_UTF8_MEDIA_TYPE);
 
         // execution and verification
-        double change = reciept.getChange().doubleValue();
-        double burgerPrice = order.getItems().get(0).getPrice().doubleValue();
+        double orderTotal = order.getItems().get(0).getPrice().doubleValue();
+        double paid = payment.doubleValue();
 
         mockMvc.perform(PUT_REQUEST.content(payment.toString()))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.payment", is(payment.doubleValue())))
-            .andExpect(jsonPath("$.change", is(change)))
-            .andExpect(jsonPath("$.order.paid", is(true)))
-            .andExpect(jsonPath("$.order.items[0].name", is("Burger")))
-            .andExpect(jsonPath("$.order.items[0].price", is(burgerPrice)));
+            .andExpect(jsonPath("$.payment", is(paid)))
+            .andExpect(jsonPath("$.change", is(paid - orderTotal)));
     }
 
     @Test(expected = NestedServletException.class)

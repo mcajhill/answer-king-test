@@ -1,20 +1,20 @@
 package answer.king.service;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-
-import answer.king.repo.RecieptRepository;
-import answer.king.throwables.exception.InsufficientFundsException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import answer.king.model.Item;
 import answer.king.model.Order;
 import answer.king.model.Reciept;
 import answer.king.repo.ItemRepository;
 import answer.king.repo.OrderRepository;
+import answer.king.repo.RecieptRepository;
+import answer.king.throwables.exception.AnswerKingException;
+import answer.king.throwables.exception.InsufficientFundsException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @Transactional
@@ -51,7 +51,7 @@ public class OrderService {
 		orderRepository.save(order);
 	}
 
-	public Reciept pay(Long id, BigDecimal payment) throws InsufficientFundsException {
+	public Reciept pay(Long id, BigDecimal payment) throws AnswerKingException {
 		Order order = orderRepository.findOne(id);
 
 		Reciept reciept = new Reciept();

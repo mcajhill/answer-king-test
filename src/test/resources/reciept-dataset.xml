@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <dataset>
-    <T_RECIEPT id="1" payment="10.00" change="8.01" ORDER_ID="1"/>
+    <T_RECIEPT id="1" payment="10.00" change="8.01"/>
 </dataset>

@@ -1,10 +1,7 @@
 package answer.king.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import java.util.List;
-
 import javax.persistence.*;
+import java.util.List;
 
 
 @Entity
@@ -17,11 +14,11 @@ public class Order {
 
     private Boolean paid = false;
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "order", cascade = { CascadeType.ALL, CascadeType.PERSIST })
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "order", cascade = { CascadeType.ALL, CascadeType.PERSIST })
     private List<Item> items;
 
-    @JsonIgnore
-    @OneToOne(mappedBy = "order", cascade = { CascadeType.ALL })
+    @OneToOne(cascade = { CascadeType.ALL, CascadeType.PERSIST })
+    @JoinColumn(name = "RECIEPT_ID")
     private Reciept reciept;
 
 

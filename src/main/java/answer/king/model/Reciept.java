@@ -1,5 +1,8 @@
 package answer.king.model;
 
+import answer.king.throwables.exception.IncompleteOrderException;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.util.List;
@@ -16,8 +19,8 @@ public class Reciept {
 
     private BigDecimal change;
 
-    @OneToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "ORDER_ID")
+    @JsonIgnore
+    @OneToOne(mappedBy = "reciept")
 	private Order order;
 
     public Long getId() {
@@ -44,8 +47,12 @@ public class Reciept {
 		this.payment = payment;
 	}
 
-    public void calculateChange() {
+    public void calculateChange() throws IncompleteOrderException {
         if (change == null) {
+
+            if (order == null)
+                throw new IncompleteOrderException();
+
             List<Item> items = order.getItems();
             BigDecimal totalOrderPrice = BigDecimal.ZERO;
             for(Item item : items) {
@@ -56,7 +63,7 @@ public class Reciept {
         }
     }
 
-	public BigDecimal getChange() {
+	public BigDecimal getChange() throws IncompleteOrderException {
         calculateChange();
 		return change;
 	}

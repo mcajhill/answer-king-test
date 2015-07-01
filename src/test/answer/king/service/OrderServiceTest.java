@@ -7,6 +7,8 @@ import answer.king.model.Reciept;
 import answer.king.repo.ItemRepository;
 import answer.king.repo.OrderRepository;
 import answer.king.repo.RecieptRepository;
+import answer.king.throwables.exception.AnswerKingException;
+import answer.king.throwables.exception.IncompleteOrderException;
 import answer.king.throwables.exception.InsufficientFundsException;
 import org.junit.Before;
 import org.junit.Test;
@@ -121,7 +123,7 @@ public class OrderServiceTest {
         order.setReciept(reciept);
 
         when(orderRepository.findOne(orderId)).thenReturn(order);
-        when(recieptRepository.save( any(Reciept.class) )).thenReturn(reciept);
+        when(recieptRepository.save(any(Reciept.class))).thenReturn(reciept);
 
         // execution
         Reciept result = orderService.pay(orderId, payment);
@@ -140,10 +142,9 @@ public class OrderServiceTest {
     }
 
     @Test(expected = InsufficientFundsException.class)
-    public void payInvalidAmountTest() throws InsufficientFundsException {
+    public void payInvalidAmountTest() throws AnswerKingException {
         // setup
         Long orderId = 1L;
-        BigDecimal payment = BigDecimal.ZERO;
 
         Order order = createEmptyOrder(orderId);
         order.setItems(createItemsList(order));
@@ -151,11 +152,26 @@ public class OrderServiceTest {
         when(orderRepository.findOne(orderId)).thenReturn(order);
 
         // execution
-        orderService.pay(orderId, payment);
+        orderService.pay(orderId, BigDecimal.ZERO);
 
         // verification
         assertEquals(order.getPaid(), false);
 
+        verify(orderRepository, times(1)).findOne(orderId);
+        verifyNoMoreInteractions(orderRepository);
+    }
+
+    @Test(expected = IncompleteOrderException.class)
+    public void payOrderNotExistsTest() throws AnswerKingException {
+        // setup
+        Long orderId = 1L;
+
+        when(orderRepository.findOne(orderId)).thenReturn(null);
+
+        // execution
+        orderService.pay(orderId, BigDecimal.TEN);
+
+        // verification
         verify(orderRepository, times(1)).findOne(orderId);
         verifyNoMoreInteractions(orderRepository);
     }

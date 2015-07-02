@@ -2,8 +2,11 @@ package answer.king.throwables.exception;
 
 public class InvalidItemNameException extends AnswerKingException {
 
+    private static final String MESSAGE = "An item must have a valid name.";
+
+
     public InvalidItemNameException() {
-        this("Item must have a valid name");
+        this(MESSAGE);
     }
 
     public InvalidItemNameException(String message) {

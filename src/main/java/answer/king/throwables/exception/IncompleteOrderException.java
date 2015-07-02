@@ -2,8 +2,11 @@ package answer.king.throwables.exception;
 
 public class IncompleteOrderException extends AnswerKingException {
 
+    private static final String MESSAGE = "An order must be complete before processing can continue.";
+
+
     public IncompleteOrderException() {
-        this("Processing of the order failed: it must be complete");
+        this(MESSAGE);
     }
 
     public IncompleteOrderException(String message) {

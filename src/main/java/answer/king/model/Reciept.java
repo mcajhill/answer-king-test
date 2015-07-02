@@ -49,14 +49,11 @@ public class Reciept {
 
     public void calculateChange() throws IncompleteOrderException {
         if (change == null) {
-
-            if (order == null)
-                throw new IncompleteOrderException();
-
-            List<Item> items = order.getItems();
+            List<LineItem> items = order.getItems();
             BigDecimal totalOrderPrice = BigDecimal.ZERO;
-            for(Item item : items) {
-                totalOrderPrice = totalOrderPrice.add(item.getPrice());
+
+            for (LineItem lineItem : items) {
+                totalOrderPrice = totalOrderPrice.add(lineItem.getPrice());
             }
 
             change = payment.subtract(totalOrderPrice);

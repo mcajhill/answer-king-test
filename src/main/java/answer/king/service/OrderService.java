@@ -1,13 +1,13 @@
 package answer.king.service;
 
 import answer.king.model.Item;
+import answer.king.model.LineItem;
 import answer.king.model.Order;
 import answer.king.model.Reciept;
 import answer.king.repo.ItemRepository;
 import answer.king.repo.OrderRepository;
 import answer.king.repo.RecieptRepository;
-import answer.king.throwables.exception.AnswerKingException;
-import answer.king.throwables.exception.InsufficientFundsException;
+import answer.king.throwables.exception.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+
 
 @Service
 @Transactional
@@ -41,18 +42,26 @@ public class OrderService {
 		return orderRepository.save(order);
 	}
 
-	public void addItem(Long id, Long itemId) {
+	public void addItem(Long id, Long itemId) throws ItemDoesNotExistException {
 		Order order = orderRepository.findOne(id);
 		Item item = itemRepository.findOne(itemId);
 
-		item.setOrder(order);
-		order.getItems().add(item);
+        if (item == null)
+            throw new ItemDoesNotExistException();
 
-		orderRepository.save(order);
+        LineItem lineItem = new LineItem();
+        lineItem.setQuantity(1);
+        lineItem.setPrice(item.getPrice());
+        lineItem.setItem(item);
+
+        order.getItems().add(lineItem);
+        orderRepository.save(order);
 	}
 
 	public Reciept pay(Long id, BigDecimal payment) throws AnswerKingException {
 		Order order = orderRepository.findOne(id);
+
+        validateOrderStatus(order);
 
 		Reciept reciept = new Reciept();
 		reciept.setPayment(payment);
@@ -68,4 +77,12 @@ public class OrderService {
 
         return recieptRepository.save(reciept);
 	}
+
+    private void validateOrderStatus(Order order) throws AnswerKingException {
+        if (order == null)
+            throw new OrderDoesNotExistException();
+
+        if (order.getReciept() != null)
+            throw new OrderAlreadyPaidException();
+    }
 }

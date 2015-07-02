@@ -40,7 +40,7 @@ public class ItemServiceTest {
     @Test
     public void saveValidNameTest() throws Exception {
         // setup
-        Item item = createBurgerItem(null);
+        Item item = createBurgerItem();
         when(itemRepository.save(item)).thenReturn(item);
 
         // execution
@@ -70,7 +70,7 @@ public class ItemServiceTest {
     @Test
     public void updateValidPriceTest() throws Exception {
         // setup
-        Item item = createBurgerItem(null);
+        Item item = createBurgerItem();
 
         final Long ITEM_ID = item.getId();
         final BigDecimal UPDATED_PRICE = new BigDecimal("4.99");
@@ -92,7 +92,7 @@ public class ItemServiceTest {
     @Test(expected = InvalidItemPriceException.class)
     public void updateInvalidPriceTest() throws AnswerKingException {
         // setup
-        Item item = createBurgerItem(null);
+        Item item = createBurgerItem();
 
         final Long ITEM_ID = item.getId();
         final BigDecimal UPDATED_PRICE = BigDecimal.TEN.negate();
@@ -110,7 +110,7 @@ public class ItemServiceTest {
     @Test
     public void getAllTest() {
         // setup
-        List<Item> items = createItemsList(null);
+        List<Item> items = createItemsList();
         when(itemRepository.findAll()).thenReturn(items);
 
         // execution

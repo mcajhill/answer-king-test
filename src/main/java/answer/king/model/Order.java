@@ -14,8 +14,9 @@ public class Order {
 
     private Boolean paid = false;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "order", cascade = { CascadeType.ALL, CascadeType.PERSIST })
-    private List<Item> items;
+    @OneToMany(fetch = FetchType.LAZY, cascade = { CascadeType.ALL, CascadeType.PERSIST })
+    @JoinColumn(name = "ORDER_ID")
+    private List<LineItem> items;
 
     @OneToOne(cascade = { CascadeType.ALL, CascadeType.PERSIST })
     @JoinColumn(name = "RECIEPT_ID")
@@ -38,11 +39,11 @@ public class Order {
 		this.paid = paid;
 	}
 
-	public List<Item> getItems() {
+	public List<LineItem> getItems() {
 		return items;
 	}
 
-	public void setItems(List<Item> items) {
+	public void setItems(List<LineItem> items) {
 		this.items = items;
 	}
 

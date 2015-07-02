@@ -2,8 +2,11 @@ package answer.king.throwables.exception;
 
 public class InvalidItemPriceException extends AnswerKingException{
 
+    private static final String MESSAGE = "An item must have a valid price.";
+
+
     public InvalidItemPriceException() {
-        this("Item must have a valid price");
+        this(MESSAGE);
     }
 
     public InvalidItemPriceException(String message) {

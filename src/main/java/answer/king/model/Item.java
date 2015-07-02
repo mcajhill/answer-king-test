@@ -25,10 +25,6 @@ public class Item {
 
     private BigDecimal price;
 
-    @JsonIgnore
-    @ManyToOne(fetch=FetchType.LAZY)
-    @JoinColumn(name = "ORDER_ID")
-    private Order order;
 
 	public Long getId() {
 		return id;
@@ -52,14 +48,6 @@ public class Item {
 
 	public void setPrice(BigDecimal price) {
 		this.price = price;
-	}
-
-	public Order getOrder() {
-		return order;
-	}
-
-	public void setOrder(Order order) {
-		this.order = order;
 	}
 
     @Override

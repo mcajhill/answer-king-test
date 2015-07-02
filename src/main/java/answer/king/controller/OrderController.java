@@ -28,7 +28,7 @@ public class OrderController {
 	}
 
 	@RequestMapping(value = "/{id}/addItem/{itemId}", method = RequestMethod.PUT)
-	public void addItem(@PathVariable("id") Long id, @PathVariable("itemId") Long itemId) {
+	public void addItem(@PathVariable("id") Long id, @PathVariable("itemId") Long itemId) throws AnswerKingException {
 		orderService.addItem(id, itemId);
 	}
 

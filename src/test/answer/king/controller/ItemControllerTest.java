@@ -55,7 +55,7 @@ public class ItemControllerTest {
         reset(itemService);
 
         mockMvc = MockMvcBuilders.standaloneSetup(itemController).build();
-        item = createBurgerItem(null);
+        item = createBurgerItem();
     }
 
     @Test

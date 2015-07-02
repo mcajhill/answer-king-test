@@ -2,14 +2,13 @@ package answer.king.service;
 
 
 import answer.king.model.Item;
+import answer.king.model.LineItem;
 import answer.king.model.Order;
 import answer.king.model.Reciept;
 import answer.king.repo.ItemRepository;
 import answer.king.repo.OrderRepository;
 import answer.king.repo.RecieptRepository;
-import answer.king.throwables.exception.AnswerKingException;
-import answer.king.throwables.exception.IncompleteOrderException;
-import answer.king.throwables.exception.InsufficientFundsException;
+import answer.king.throwables.exception.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -28,6 +27,9 @@ import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class OrderServiceTest {
+
+    private final Long ORDER_ID = 1L;
+    private final Long ITEM_ID = 1L;
 
     @InjectMocks
     private OrderService orderService;
@@ -83,96 +85,119 @@ public class OrderServiceTest {
     }
 
     @Test
-    public void addItemTest() {
+    public void addLineItemFromExistingItemTest() throws AnswerKingException {
         // setup
-        Long orderId = 1L;
-        Long itemId = 1L;
+        Order order = createEmptyOrder(ORDER_ID);
+        Item item = createBurgerItem();
 
-        Order order = createEmptyOrder(orderId);
-        Item item = createEmptyItem(itemId);
-
-        when(orderRepository.findOne(orderId)).thenReturn(order);
-        when(itemRepository.findOne(itemId)).thenReturn(item);
+        when(orderRepository.findOne(ORDER_ID)).thenReturn(order);
+        when(itemRepository.findOne(ITEM_ID)).thenReturn(item);
 
         // execution
-        orderService.addItem(orderId, itemId);
+        orderService.addItem(ORDER_ID, ITEM_ID);
 
         // verification
-        assertEquals(item.getOrder(), order);
-        assertTrue( order.getItems().contains(item) );
+        LineItem lineItem = order.getItems().get(0);
 
-        verify(orderRepository, times(1)).findOne(orderId);
+        assertEquals(item, lineItem.getItem());
+        assertEquals(item.getPrice(), lineItem.getPrice());
+        assertEquals(1, lineItem.getQuantity());
+
+        verify(orderRepository, times(1)).findOne(ORDER_ID);
         verify(orderRepository, times(1)).save(order);
-        verify(itemRepository, times(1)).findOne(itemId);
+        verify(itemRepository, times(1)).findOne(ITEM_ID);
+
+        verifyNoMoreInteractions(itemRepository);
+        verifyNoMoreInteractions(orderRepository);
+    }
+
+    @Test(expected = ItemDoesNotExistException.class)
+    public void addLineItemFromNonExistentItemTest() throws AnswerKingException {
+        // setup
+        Order order = createEmptyOrder(ORDER_ID);
+
+        when(orderRepository.findOne(ORDER_ID)).thenReturn(order);
+        when(itemRepository.findOne(ITEM_ID)).thenReturn(null);
+
+        // execution
+        orderService.addItem(ORDER_ID, ITEM_ID);
 
         verifyNoMoreInteractions(itemRepository);
         verifyNoMoreInteractions(orderRepository);
     }
 
     @Test
-    public void payValidAmountTest() throws Exception {
+    public void payValidAmountTest() throws AnswerKingException {
         // setup
-        Long orderId = 1L;
         BigDecimal payment = BigDecimal.TEN;
 
-        Order order = createEmptyOrder(orderId);
-        order.setItems(createItemsList(order));
+        Order order = createEmptyOrder(ORDER_ID);
+        order.setItems(createLineItemList());
 
-        Reciept reciept = createReciept(order, payment);
-        reciept.setId(1L);
-        order.setReciept(reciept);
-
-        when(orderRepository.findOne(orderId)).thenReturn(order);
-        when(recieptRepository.save(any(Reciept.class))).thenReturn(reciept);
+        when(orderRepository.findOne(ORDER_ID)).thenReturn(order);
 
         // execution
-        Reciept result = orderService.pay(orderId, payment);
+        orderService.pay(ORDER_ID, payment);
+        Reciept result = order.getReciept();
+
         BigDecimal change = result.getChange();
         Order orderResult = result.getOrder();
 
         // verification
-        assertEquals(orderResult, order);
-        assertEquals(result.getPayment(), payment);
-        assertEquals(result.getId(), reciept.getId());
-        assertEquals(orderResult.getPaid(), true);
+        assertEquals(order, orderResult);
+        assertEquals(true, orderResult.getPaid());
+        assertEquals(payment, result.getPayment());
         assertTrue(change.compareTo(BigDecimal.ZERO) >= 0);
 
-        verify(orderRepository, times(1)).findOne(orderId);
+        verify(orderRepository, times(1)).findOne(ORDER_ID);
         verifyNoMoreInteractions(orderRepository);
     }
 
     @Test(expected = InsufficientFundsException.class)
     public void payInvalidAmountTest() throws AnswerKingException {
         // setup
-        Long orderId = 1L;
-
-        Order order = createEmptyOrder(orderId);
-        order.setItems(createItemsList(order));
-
-        when(orderRepository.findOne(orderId)).thenReturn(order);
+        Order order = createBurgerOrder(ITEM_ID);
+        when(orderRepository.findOne(ORDER_ID)).thenReturn(order);
 
         // execution
-        orderService.pay(orderId, BigDecimal.ZERO);
+        orderService.pay(ORDER_ID, BigDecimal.ZERO);
 
         // verification
-        assertEquals(order.getPaid(), false);
+        assertEquals(false, order.getPaid());
 
-        verify(orderRepository, times(1)).findOne(orderId);
-        verifyNoMoreInteractions(orderRepository);
+        verify(orderRepository, times(1)).findOne(ORDER_ID);
+        verifyZeroInteractions(recieptRepository);
     }
 
-    @Test(expected = IncompleteOrderException.class)
+    @Test(expected = OrderDoesNotExistException.class)
     public void payOrderNotExistsTest() throws AnswerKingException {
         // setup
-        Long orderId = 1L;
-
-        when(orderRepository.findOne(orderId)).thenReturn(null);
+        when(orderRepository.findOne(ORDER_ID)).thenReturn(null);
 
         // execution
-        orderService.pay(orderId, BigDecimal.TEN);
+        orderService.pay(ORDER_ID, BigDecimal.TEN);
 
         // verification
-        verify(orderRepository, times(1)).findOne(orderId);
-        verifyNoMoreInteractions(orderRepository);
+        verify(orderRepository, times(1)).findOne(ORDER_ID);
+        verifyZeroInteractions(recieptRepository);
+    }
+
+    @Test(expected = OrderAlreadyPaidException.class)
+    public void payTwiceTest() throws AnswerKingException {
+        // setup
+        BigDecimal payment = BigDecimal.ZERO;
+
+        Order order = createBurgerOrder(ITEM_ID);
+        Reciept reciept = createReciept(1L, order, payment);
+        order.setReciept(reciept);
+
+        when(orderRepository.findOne(ORDER_ID)).thenReturn(order);
+
+        // execution
+        orderService.pay(ORDER_ID, payment);
+
+        // verification
+        verify(orderRepository, times(1)).findOne(ORDER_ID);
+        verifyZeroInteractions(recieptRepository);
     }
 }

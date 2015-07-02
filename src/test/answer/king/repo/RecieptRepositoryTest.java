@@ -11,6 +11,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
@@ -33,6 +34,7 @@ public class RecieptRepositoryTest {
     protected static final String ORDER_DATASET = "/order-dataset.xml";
     protected static final String RECIEPT_DATASET = "/reciept-dataset.xml";
 
+    private final Long ORDER_ID = 1L;
     private final Long RECIEPT_ID = 1L;
     private final BigDecimal PAYMENT = new BigDecimal("10.00");
 
@@ -44,9 +46,7 @@ public class RecieptRepositoryTest {
     @DatabaseSetup(value = ORDER_DATASET, type = DatabaseOperation.CLEAN_INSERT)
     public void saveTest() throws AnswerKingException {
         //setup
-        final Long ORDER_ID = 1L;
-
-        Reciept reciept = createReciept(createBurgerOrder(ORDER_ID), PAYMENT);
+        Reciept reciept = createReciept(null, createBurgerOrder(ORDER_ID), PAYMENT);
         BigDecimal expectedChange = reciept.getChange();
 
         // execution

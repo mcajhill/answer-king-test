@@ -7,6 +7,9 @@ import answer.king.model.Order;
 import answer.king.model.Reciept;
 import answer.king.service.OrderService;
 import answer.king.throwables.exception.InsufficientFundsException;
+import answer.king.throwables.exception.ItemDoesNotExistException;
+import answer.king.throwables.exception.OrderAlreadyPaidException;
+import answer.king.throwables.exception.OrderDoesNotExistException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -17,7 +20,9 @@ import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+import org.springframework.test.web.servlet.result.JsonPathResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.util.NestedServletException;
 
@@ -26,6 +31,7 @@ import java.util.List;
 
 import static answer.king.util.ModelUtil.*;
 import static answer.king.util.TestUtil.JSON_UTF8_MEDIA_TYPE;
+import static answer.king.util.TestUtil.convertObjectToJson;
 import static com.jayway.jsonassert.impl.matcher.IsCollectionWithSize.hasSize;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.Mockito.*;
@@ -38,6 +44,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringApplicationConfiguration(classes = AppConfig.class)
 @WebAppConfiguration
 public class OrderControllerTest {
+
+    private final Long ORDER_ID = 1L;
+    private final Long ITEM_ID = 1L;
+
+    private final String PAY_PATH = "/order/" + ORDER_ID + "/pay/";
+    private final String ADD_ITEM_PATH = "/order/" + ORDER_ID + "/addItem/" + ITEM_ID;
 
     @Autowired
     @InjectMocks
@@ -74,8 +86,8 @@ public class OrderControllerTest {
             .andExpect(jsonPath("$", hasSize(1)))
             .andExpect(jsonPath("$[0].id", is(orderId.intValue())))
             .andExpect(jsonPath("$[0].items", hasSize(1)))
-            .andExpect(jsonPath("$[0].items[0].name", is("Burger")))
-            .andReturn();
+            .andExpect(jsonPath("$[0].items[0].price", is(1.99)))
+            .andExpect(jsonPath("$[0].items[0].quantity", is(1)));
 
         // verification
         verify(orderService, times(1)).getAll();
@@ -91,40 +103,47 @@ public class OrderControllerTest {
         // execution and verification
         mockMvc.perform(CREATE_REQUEST)
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$").exists())              // order != null
+            .andExpect(jsonPath("$").exists())
             .andExpect(jsonPath("$.paid").value(false))
-            .andExpect(jsonPath("$.items").doesNotExist())    // items == null
-            .andReturn();
+            .andExpect(jsonPath("$.items").doesNotExist())
+            .andExpect(jsonPath("$.reciept").doesNotExist());
     }
 
     @Test
-    public void addItemTest() throws Exception {
+    public void addItemExistsTest() throws Exception {
         // setup
-        Order order = createEmptyOrder(1L);
-        Item item = createBurgerItem(null);
+        Order order = createEmptyOrder(ORDER_ID);
+        Item item = createBurgerItem();
 
         doNothing().when(orderService).addItem(order.getId(), item.getId());
 
-        String path = "/order/" + order.getId() + "/addItem/" + item.getId();
+        // execution and verification
+        mockMvc.perform(put(ADD_ITEM_PATH))
+            .andExpect(status().isOk());
+    }
+
+    @Test(expected = NestedServletException.class)
+    public void addItemNotExistsTest() throws Exception {
+        // setup
+        doThrow(new ItemDoesNotExistException())
+            .when(orderService).addItem(ORDER_ID, ITEM_ID);
 
         // execution and verification
-        mockMvc.perform(put(path))
-            .andExpect(status().isOk());
+        mockMvc.perform(put(ADD_ITEM_PATH))
+            .andExpect(status().isOk());    // TODO - why not internal server error?
     }
 
     @Test
     public void payValidAmountTest() throws Exception {
         // setup
-        Long orderId = 1L;
         BigDecimal payment = new BigDecimal("10.00");
 
-        Order order = createBurgerOrder(orderId);
-        Reciept reciept = createReciept(order, payment);
+        Order order = createBurgerOrder(ORDER_ID);
+        Reciept reciept = createReciept(1L, order, payment);
 
-        when(orderService.pay(orderId, payment)).thenReturn(reciept);
+        when(orderService.pay(ORDER_ID, payment)).thenReturn(reciept);
 
-        String path = "/order/" + order.getId() + "/pay";
-        final MockHttpServletRequestBuilder PUT_REQUEST = put(path).contentType(JSON_UTF8_MEDIA_TYPE);
+        final MockHttpServletRequestBuilder PUT_REQUEST = put(PAY_PATH).contentType(JSON_UTF8_MEDIA_TYPE);
 
         // execution and verification
         double orderTotal = order.getItems().get(0).getPrice().doubleValue();
@@ -139,18 +158,37 @@ public class OrderControllerTest {
     @Test(expected = NestedServletException.class)
     public void payInvalidAmountTest() throws Exception {
         // setup
-        Long orderId = 1L;
         BigDecimal payment = new BigDecimal("1.00");
+        when(orderService.pay(ORDER_ID, payment)).thenThrow(new InsufficientFundsException());
 
-        Order order = createBurgerOrder(orderId);
-
-        when(orderService.pay(orderId, payment)).thenThrow(new InsufficientFundsException());
-
-        String path = "/order/" + order.getId() + "/pay";
-        final MockHttpServletRequestBuilder PUT_REQUEST = put(path).contentType(JSON_UTF8_MEDIA_TYPE);
+        final MockHttpServletRequestBuilder PUT_REQUEST = put(PAY_PATH).contentType(JSON_UTF8_MEDIA_TYPE);
 
         // execution and verification
         mockMvc.perform(PUT_REQUEST.content(payment.toString()))
-            .andExpect(status().isInternalServerError());
+            .andExpect(status().isOk());
+    }
+
+    @Test(expected = NestedServletException.class)
+    public void payOrderNotExistsTest() throws Exception {
+        // setup
+        BigDecimal payment = new BigDecimal("10.00");
+        when(orderService.pay(ORDER_ID, payment)).thenThrow(new OrderDoesNotExistException());
+
+        final MockHttpServletRequestBuilder PUT_REQUEST = put(PAY_PATH).contentType(JSON_UTF8_MEDIA_TYPE);
+
+        mockMvc.perform(PUT_REQUEST.content(payment.toString()))
+            .andExpect(status().isOk());
+    }
+
+    @Test(expected = NestedServletException.class)
+    public void payTwiceTest() throws Exception {
+        // setup
+        BigDecimal payment = new BigDecimal("10.00");
+        when(orderService.pay(ORDER_ID, payment)).thenThrow(new OrderAlreadyPaidException());
+
+        final MockHttpServletRequestBuilder PUT_REQUEST = put(PAY_PATH).contentType(JSON_UTF8_MEDIA_TYPE);
+
+        mockMvc.perform(PUT_REQUEST.content(payment.toString()))
+            .andExpect(status().isOk());
     }
 }

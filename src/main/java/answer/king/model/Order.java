@@ -1,6 +1,8 @@
 package answer.king.model;
 
 import javax.persistence.*;
+import java.math.BigDecimal;
+import java.util.Iterator;
 import java.util.List;
 
 
@@ -53,6 +55,36 @@ public class Order {
 
     public void setReciept(Reciept reciept) {
         this.reciept = reciept;
+    }
+
+    public LineItem findLineItem(Item item) {
+        LineItem lineItem = null;
+        boolean found = false;
+
+        // check the order for a LineItem instance which is linked to an Item
+        for (Iterator iter = getItems().iterator(); iter.hasNext() && !found;) {
+            LineItem current = (LineItem) iter.next();
+
+            if (current.getItem().equals(item)) {
+                lineItem = current;
+                found = true;
+            }
+        }
+
+        return lineItem;
+    }
+
+    public BigDecimal calculateTotalOrderCost() {
+        List<LineItem> items = getItems();
+        BigDecimal totalOrderCost = BigDecimal.ZERO;
+
+        for (LineItem lineItem : items) {
+            BigDecimal qty = new BigDecimal(lineItem.getQuantity());
+            BigDecimal totalLinePrice = lineItem.getPrice().multiply(qty);
+            totalOrderCost = totalOrderCost.add(totalLinePrice);
+        }
+
+        return totalOrderCost;
     }
 
     @Override

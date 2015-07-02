@@ -42,23 +42,35 @@ public class OrderService {
 		return orderRepository.save(order);
 	}
 
-	public void addItem(Long id, Long itemId) throws ItemDoesNotExistException {
+	public void addItem(Long id, Long itemId, Integer qty) throws ItemDoesNotExistException {
 		Order order = orderRepository.findOne(id);
 		Item item = itemRepository.findOne(itemId);
 
         if (item == null)
             throw new ItemDoesNotExistException();
 
-        LineItem lineItem = new LineItem();
-        lineItem.setQuantity(1);
-        lineItem.setPrice(item.getPrice());
-        lineItem.setItem(item);
+        LineItem lineItem = order.findLineItem(item);
 
-        order.getItems().add(lineItem);
+        if (lineItem == null)
+            lineItem = new LineItem();
+
+        List<LineItem> items = order.getItems();
+
+        if (items.contains(lineItem)) {
+            Integer newQty = lineItem.getQuantity() + qty;
+            lineItem.setQuantity(newQty);
+        }
+        else {
+            lineItem.setQuantity(qty);
+            lineItem.setPrice(item.getPrice());
+            lineItem.setItem(item);
+            items.add(lineItem);
+        }
+
         orderRepository.save(order);
 	}
 
-	public Reciept pay(Long id, BigDecimal payment) throws AnswerKingException {
+    public Reciept pay(Long id, BigDecimal payment) throws AnswerKingException {
 		Order order = orderRepository.findOne(id);
 
         validateOrderStatus(order);

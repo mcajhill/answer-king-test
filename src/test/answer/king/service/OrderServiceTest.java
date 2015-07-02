@@ -21,7 +21,8 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import static answer.king.util.ModelUtil.*;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.*;
 
 
@@ -94,14 +95,14 @@ public class OrderServiceTest {
         when(itemRepository.findOne(ITEM_ID)).thenReturn(item);
 
         // execution
-        orderService.addItem(ORDER_ID, ITEM_ID);
+        orderService.addItem(ORDER_ID, ITEM_ID, 1);
 
         // verification
         LineItem lineItem = order.getItems().get(0);
 
         assertEquals(item, lineItem.getItem());
         assertEquals(item.getPrice(), lineItem.getPrice());
-        assertEquals(1, lineItem.getQuantity());
+        assertEquals(Integer.valueOf(1), lineItem.getQuantity());
 
         verify(orderRepository, times(1)).findOne(ORDER_ID);
         verify(orderRepository, times(1)).save(order);
@@ -120,10 +121,35 @@ public class OrderServiceTest {
         when(itemRepository.findOne(ITEM_ID)).thenReturn(null);
 
         // execution
-        orderService.addItem(ORDER_ID, ITEM_ID);
+        orderService.addItem(ORDER_ID, ITEM_ID, 1);
 
+        // verification
         verifyNoMoreInteractions(itemRepository);
         verifyNoMoreInteractions(orderRepository);
+    }
+
+    @Test
+    public void addLineItemAlreadyOnOrderTest() throws AnswerKingException {
+        // setup
+        Order order = createEmptyOrder(ORDER_ID);
+        Item item = createBurgerItem();
+        LineItem lineItem = createLineItem(item);
+
+        order.getItems().add(lineItem);
+
+        when(orderRepository.findOne(ORDER_ID)).thenReturn(order);
+        when(itemRepository.findOne(ITEM_ID)).thenReturn(item);
+        when(orderRepository.save(order)).thenReturn(order);
+
+        // execution
+        orderService.addItem(ORDER_ID, ITEM_ID, 1);
+
+        // verification
+        LineItem result = order.findLineItem(item);
+
+        assertEquals(lineItem, result);
+        assertEquals(Integer.valueOf(2), result.getQuantity());
+        assertEquals(item, result.getItem());
     }
 
     @Test
@@ -147,7 +173,7 @@ public class OrderServiceTest {
         assertEquals(order, orderResult);
         assertEquals(true, orderResult.getPaid());
         assertEquals(payment, result.getPayment());
-        assertTrue(change.compareTo(BigDecimal.ZERO) >= 0);
+        assertEquals(payment.subtract(order.calculateTotalOrderCost()), change);
 
         verify(orderRepository, times(1)).findOne(ORDER_ID);
         verifyNoMoreInteractions(orderRepository);

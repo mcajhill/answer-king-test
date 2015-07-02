@@ -41,11 +41,11 @@ public class LineItem {
         this.price = currentPrice;
     }
 
-    public int getQuantity() {
+    public Integer getQuantity() {
         return quantity;
     }
 
-    public void setQuantity(int quantity) {
+    public void setQuantity(Integer quantity) {
         this.quantity = quantity;
     }
 
@@ -55,5 +55,27 @@ public class LineItem {
 
     public void setItem(Item item) {
         this.item = item;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof LineItem)) return false;
+
+        LineItem lineItem = (LineItem) o;
+
+        return !(getId() != null ? !getId().equals(lineItem.getId()) : lineItem.getId() != null) &&
+            !(getPrice() != null ? !getPrice().equals(lineItem.getPrice()) : lineItem.getPrice() != null) &&
+            !(getQuantity() != null ? !getQuantity().equals(lineItem.getQuantity()) : lineItem.getQuantity() != null) &&
+            !(getItem() != null ? !getItem().equals(lineItem.getItem()) : lineItem.getItem() != null);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = getId() != null ? getId().hashCode() : 0;
+        result = 31 * result + (getPrice() != null ? getPrice().hashCode() : 0);
+        result = 31 * result + (getQuantity() != null ? getQuantity().hashCode() : 0);
+        result = 31 * result + (getItem() != null ? getItem().hashCode() : 0);
+        return result;
     }
 }

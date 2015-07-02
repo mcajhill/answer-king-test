@@ -20,9 +20,7 @@ import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
-import org.springframework.test.web.servlet.result.JsonPathResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.util.NestedServletException;
 
@@ -50,6 +48,9 @@ public class OrderControllerTest {
 
     private final String PAY_PATH = "/order/" + ORDER_ID + "/pay/";
     private final String ADD_ITEM_PATH = "/order/" + ORDER_ID + "/addItem/" + ITEM_ID;
+
+    private final MockHttpServletRequestBuilder ADD_ITEM_REQUEST = put(ADD_ITEM_PATH).contentType(JSON_UTF8_MEDIA_TYPE);
+    private final MockHttpServletRequestBuilder PAY_REQUEST = put(PAY_PATH).contentType(JSON_UTF8_MEDIA_TYPE);
 
     @Autowired
     @InjectMocks
@@ -110,15 +111,17 @@ public class OrderControllerTest {
     }
 
     @Test
-    public void addItemExistsTest() throws Exception {
+    public void addValidItemTest() throws Exception {
         // setup
         Order order = createEmptyOrder(ORDER_ID);
         Item item = createBurgerItem();
 
-        doNothing().when(orderService).addItem(order.getId(), item.getId());
+        doNothing().when(orderService).addItem(order.getId(), item.getId(), 1);
+
+        String qtyJson = convertObjectToJson(1);
 
         // execution and verification
-        mockMvc.perform(put(ADD_ITEM_PATH))
+        mockMvc.perform(ADD_ITEM_REQUEST.content(qtyJson))
             .andExpect(status().isOk());
     }
 
@@ -126,11 +129,27 @@ public class OrderControllerTest {
     public void addItemNotExistsTest() throws Exception {
         // setup
         doThrow(new ItemDoesNotExistException())
-            .when(orderService).addItem(ORDER_ID, ITEM_ID);
+            .when(orderService).addItem(ORDER_ID, ITEM_ID, 1);
+
+        String qtyJson = convertObjectToJson(1);
 
         // execution and verification
-        mockMvc.perform(put(ADD_ITEM_PATH))
-            .andExpect(status().isOk());    // TODO - why not internal server error?
+        mockMvc.perform(ADD_ITEM_REQUEST.content(qtyJson))
+            .andExpect(status().isOk());
+    }
+
+    @Test
+    public void addLineItemAlreadyOnOrderTest() throws Exception {
+        // setup
+
+        String qtyJson = convertObjectToJson(1);
+
+        // execution and verification
+        mockMvc.perform(ADD_ITEM_REQUEST.content(qtyJson))
+            .andExpect(status().isOk());
+
+        mockMvc.perform(ADD_ITEM_REQUEST.content(qtyJson))
+            .andExpect(status().isOk());
     }
 
     @Test
@@ -143,13 +162,11 @@ public class OrderControllerTest {
 
         when(orderService.pay(ORDER_ID, payment)).thenReturn(reciept);
 
-        final MockHttpServletRequestBuilder PUT_REQUEST = put(PAY_PATH).contentType(JSON_UTF8_MEDIA_TYPE);
-
         // execution and verification
         double orderTotal = order.getItems().get(0).getPrice().doubleValue();
         double paid = payment.doubleValue();
 
-        mockMvc.perform(PUT_REQUEST.content(payment.toString()))
+        mockMvc.perform(PAY_REQUEST.content(payment.toString()))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.payment", is(paid)))
             .andExpect(jsonPath("$.change", is(paid - orderTotal)));
@@ -161,10 +178,8 @@ public class OrderControllerTest {
         BigDecimal payment = new BigDecimal("1.00");
         when(orderService.pay(ORDER_ID, payment)).thenThrow(new InsufficientFundsException());
 
-        final MockHttpServletRequestBuilder PUT_REQUEST = put(PAY_PATH).contentType(JSON_UTF8_MEDIA_TYPE);
-
         // execution and verification
-        mockMvc.perform(PUT_REQUEST.content(payment.toString()))
+        mockMvc.perform(PAY_REQUEST.content(payment.toString()))
             .andExpect(status().isOk());
     }
 
@@ -174,9 +189,8 @@ public class OrderControllerTest {
         BigDecimal payment = new BigDecimal("10.00");
         when(orderService.pay(ORDER_ID, payment)).thenThrow(new OrderDoesNotExistException());
 
-        final MockHttpServletRequestBuilder PUT_REQUEST = put(PAY_PATH).contentType(JSON_UTF8_MEDIA_TYPE);
-
-        mockMvc.perform(PUT_REQUEST.content(payment.toString()))
+        // execution and verification
+        mockMvc.perform(PAY_REQUEST.content(payment.toString()))
             .andExpect(status().isOk());
     }
 
@@ -186,9 +200,8 @@ public class OrderControllerTest {
         BigDecimal payment = new BigDecimal("10.00");
         when(orderService.pay(ORDER_ID, payment)).thenThrow(new OrderAlreadyPaidException());
 
-        final MockHttpServletRequestBuilder PUT_REQUEST = put(PAY_PATH).contentType(JSON_UTF8_MEDIA_TYPE);
-
-        mockMvc.perform(PUT_REQUEST.content(payment.toString()))
+        // execution and verification
+        mockMvc.perform(PAY_REQUEST.content(payment.toString()))
             .andExpect(status().isOk());
     }
 }

@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
-import java.util.List;
 
 @Entity
 @Table(name = "T_RECIEPT")
@@ -49,14 +48,7 @@ public class Reciept {
 
     public void calculateChange() throws IncompleteOrderException {
         if (change == null) {
-            List<LineItem> items = order.getItems();
-            BigDecimal totalOrderPrice = BigDecimal.ZERO;
-
-            for (LineItem lineItem : items) {
-                totalOrderPrice = totalOrderPrice.add(lineItem.getPrice());
-            }
-
-            change = payment.subtract(totalOrderPrice);
+            change = payment.subtract(order.calculateTotalOrderCost());
         }
     }
 

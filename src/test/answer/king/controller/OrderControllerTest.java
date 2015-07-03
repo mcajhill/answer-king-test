@@ -2,7 +2,6 @@ package answer.king.controller;
 
 
 import answer.king.config.AppConfig;
-import answer.king.model.Item;
 import answer.king.model.Order;
 import answer.king.model.Reciept;
 import answer.king.service.OrderService;
@@ -113,11 +112,6 @@ public class OrderControllerTest {
     @Test
     public void addValidItemTest() throws Exception {
         // setup
-        Order order = createEmptyOrder(ORDER_ID);
-        Item item = createBurgerItem();
-
-        doNothing().when(orderService).addItem(order.getId(), item.getId(), 1);
-
         String qtyJson = convertObjectToJson(1);
 
         // execution and verification
@@ -134,20 +128,6 @@ public class OrderControllerTest {
         String qtyJson = convertObjectToJson(1);
 
         // execution and verification
-        mockMvc.perform(ADD_ITEM_REQUEST.content(qtyJson))
-            .andExpect(status().isOk());
-    }
-
-    @Test
-    public void addLineItemAlreadyOnOrderTest() throws Exception {
-        // setup
-
-        String qtyJson = convertObjectToJson(1);
-
-        // execution and verification
-        mockMvc.perform(ADD_ITEM_REQUEST.content(qtyJson))
-            .andExpect(status().isOk());
-
         mockMvc.perform(ADD_ITEM_REQUEST.content(qtyJson))
             .andExpect(status().isOk());
     }

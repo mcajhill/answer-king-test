@@ -24,6 +24,7 @@ import java.math.BigDecimal;
 import static answer.king.util.ModelUtil.createBurgerItem;
 import static answer.king.util.TestUtil.JSON_UTF8_MEDIA_TYPE;
 import static answer.king.util.TestUtil.convertObjectToJson;
+import static org.hamcrest.core.Is.is;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -79,7 +80,6 @@ public class ItemControllerTest {
         // execution
         mockMvc.perform(POST_REQUEST.content(itemJson))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(JSON_UTF8_MEDIA_TYPE))
             .andExpect(jsonPath("$").exists())
             .andExpect(jsonPath("$.id").value(1))
             .andExpect(jsonPath("$.name").value("Burger"))
@@ -124,8 +124,7 @@ public class ItemControllerTest {
         // execution
         mockMvc.perform(PUT_REQUEST.content(content))
             .andExpect(status().isOk())
-            .andExpect(content().contentType(JSON_UTF8_MEDIA_TYPE))
-            .andExpect(jsonPath("$.price").value(updatedPrice.doubleValue()));
+            .andExpect(jsonPath("$.price", is(updatedPrice.doubleValue())));
 
         // verification
         verify(itemService, times(1)).updatePrice(itemId, updatedPrice);

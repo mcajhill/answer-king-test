@@ -8,7 +8,11 @@ import answer.king.model.Reciept;
 import answer.king.repo.ItemRepository;
 import answer.king.repo.OrderRepository;
 import answer.king.repo.RecieptRepository;
-import answer.king.throwables.exception.*;
+import answer.king.throwables.exception.AnswerKingException;
+import answer.king.throwables.exception.InsufficientFundsException;
+import answer.king.throwables.exception.ItemDoesNotExistException;
+import answer.king.throwables.exception.OrderAlreadyPaidException;
+import answer.king.throwables.exception.OrderDoesNotExistException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -20,10 +24,20 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.math.BigDecimal;
 import java.util.List;
 
-import static answer.king.util.ModelUtil.*;
+import static answer.king.util.ModelUtil.createBurgerItem;
+import static answer.king.util.ModelUtil.createBurgerOrder;
+import static answer.king.util.ModelUtil.createEmptyOrder;
+import static answer.king.util.ModelUtil.createLineItem;
+import static answer.king.util.ModelUtil.createLineItemList;
+import static answer.king.util.ModelUtil.createOrdersList;
+import static answer.king.util.ModelUtil.createReciept;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 
 @RunWith(MockitoJUnitRunner.class)

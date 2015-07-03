@@ -17,18 +17,26 @@ import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.util.NestedServletException;
 
 import java.math.BigDecimal;
 
 import static answer.king.util.ModelUtil.createBurgerItem;
 import static answer.king.util.TestUtil.JSON_UTF8_MEDIA_TYPE;
 import static answer.king.util.TestUtil.convertObjectToJson;
+import static answer.king.util.TestUtil.getSimpleMappingExceptionResolver;
 import static org.hamcrest.core.Is.is;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -39,8 +47,13 @@ public class ItemControllerTest {
     private final MockHttpServletRequestBuilder GET_REQUEST = get("/item").contentType(JSON_UTF8_MEDIA_TYPE);
     private final MockHttpServletRequestBuilder POST_REQUEST = post("/item").contentType(JSON_UTF8_MEDIA_TYPE);
 
+    private final BigDecimal VALID_PRICE = new BigDecimal("10.00");
+    private final BigDecimal INVALID_PRICE = VALID_PRICE.negate();
+
+    private Item invalidItem;
+    private Item validItem;
+    private Long itemId;
     private MockMvc mockMvc;
-    private Item item;
 
     @Autowired
     @InjectMocks
@@ -55,8 +68,14 @@ public class ItemControllerTest {
         initMocks(this);
         reset(itemService);
 
-        mockMvc = MockMvcBuilders.standaloneSetup(itemController).build();
-        item = createBurgerItem();
+        mockMvc = MockMvcBuilders.standaloneSetup(itemController)
+            .setHandlerExceptionResolvers(getSimpleMappingExceptionResolver())
+            .build();
+
+        invalidItem = new Item();
+
+        validItem = createBurgerItem();
+        itemId = validItem.getId();
     }
 
     @Test
@@ -74,31 +93,31 @@ public class ItemControllerTest {
     @Test
     public void createWithValidNameTest() throws Exception {
         // setup
-        String itemJson = convertObjectToJson(item);
-        when(itemService.save(item)).thenReturn(item);
+        when(itemService.save(validItem)).thenReturn(validItem);
 
         // execution
-        mockMvc.perform(POST_REQUEST.content(itemJson))
+        mockMvc.perform(POST_REQUEST
+            .content(convertObjectToJson(validItem)))
             .andExpect(status().isOk())
+            .andExpect(content().contentType(JSON_UTF8_MEDIA_TYPE))
             .andExpect(jsonPath("$").exists())
             .andExpect(jsonPath("$.id").value(1))
             .andExpect(jsonPath("$.name").value("Burger"))
             .andExpect(jsonPath("$.price").value(1.99));
 
-        verify(itemService, times(1)).save(item);
+        verify(itemService, times(1)).save(validItem);
         verifyNoMoreInteractions(itemService);
     }
 
-    @Test(expected = NestedServletException.class)
+    @Test
     public void createWithInvalidNameTest() throws Exception {
         // setup
-        Item invalidItem = new Item();
-        String invalidItemJson = convertObjectToJson(invalidItem);
-
-        when(itemService.save(invalidItem)).thenThrow(new InvalidItemNameException());
+        when(itemService.save(invalidItem))
+            .thenThrow(new InvalidItemNameException());
 
         // execution
-        mockMvc.perform(POST_REQUEST.content(invalidItemJson))
+        mockMvc.perform(POST_REQUEST
+            .content(convertObjectToJson(invalidItem)))
             .andExpect(status().isInternalServerError());
 
         // verification
@@ -109,48 +128,44 @@ public class ItemControllerTest {
     @Test
     public void updateValidPriceTest() throws Exception {
         // setup
-        Long itemId = item.getId();
+        validItem.setPrice(VALID_PRICE);
 
-        BigDecimal updatedPrice = new BigDecimal("10.00");
-        item.setPrice(updatedPrice);
-
-        when(itemService.updatePrice(itemId, updatedPrice)).thenReturn(item);
+        when(itemService.updatePrice(itemId, VALID_PRICE))
+            .thenReturn(validItem);
 
         String path = "/item/" + itemId + "/updatePrice";
-        String content = convertObjectToJson(updatedPrice);
-
         MockHttpServletRequestBuilder PUT_REQUEST = put(path).contentType(JSON_UTF8_MEDIA_TYPE);
 
         // execution
-        mockMvc.perform(PUT_REQUEST.content(content))
+        mockMvc.perform(PUT_REQUEST
+            .content(convertObjectToJson(VALID_PRICE)))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.price", is(updatedPrice.doubleValue())));
+            .andExpect(content().contentType(JSON_UTF8_MEDIA_TYPE))
+            .andExpect(jsonPath("$.price", is(VALID_PRICE.doubleValue())));
 
         // verification
-        verify(itemService, times(1)).updatePrice(itemId, updatedPrice);
+        verify(itemService, times(1)).updatePrice(itemId, VALID_PRICE);
         verifyNoMoreInteractions(itemService);
     }
 
-    @Test(expected = NestedServletException.class)
+    @Test
     public void updateInvalidPriceTest() throws Exception {
         // setup
-        Long itemId = item.getId();
+        validItem.setPrice(INVALID_PRICE);
 
-        BigDecimal invalidPrice = BigDecimal.TEN.negate();
-        item.setPrice(invalidPrice);
-
-        when(itemService.updatePrice(itemId, invalidPrice)).thenThrow(new InvalidItemPriceException());
+        when(itemService.updatePrice(itemId, INVALID_PRICE))
+            .thenThrow(new InvalidItemPriceException());
 
         String path = "/item/" + itemId + "/updatePrice";
-        String content = convertObjectToJson(invalidPrice);
-
         MockHttpServletRequestBuilder PUT_REQUEST = put(path).contentType(JSON_UTF8_MEDIA_TYPE);
 
         // execution
-        mockMvc.perform(PUT_REQUEST.content(content))
+        mockMvc.perform(PUT_REQUEST
+            .contentType(JSON_UTF8_MEDIA_TYPE)
+            .content(convertObjectToJson(INVALID_PRICE)))
             .andExpect(status().isInternalServerError());
 
-        verify(itemService, times(1)).updatePrice(itemId, invalidPrice);
+        verify(itemService, times(1)).updatePrice(itemId, INVALID_PRICE);
         verifyNoMoreInteractions(itemService);
     }
 }

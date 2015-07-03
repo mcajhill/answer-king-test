@@ -1,9 +1,9 @@
 package answer.king.config;
 
-import java.util.Properties;
-
-import javax.sql.DataSource;
-
+import answer.king.controller.ItemController;
+import answer.king.model.Item;
+import answer.king.repo.ItemRepository;
+import answer.king.service.ItemService;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -19,10 +19,8 @@ import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
-import answer.king.controller.ItemController;
-import answer.king.model.Item;
-import answer.king.repo.ItemRepository;
-import answer.king.service.ItemService;
+import javax.sql.DataSource;
+import java.util.Properties;
 
 @Configuration
 @EnableAutoConfiguration

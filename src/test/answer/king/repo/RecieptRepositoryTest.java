@@ -33,9 +33,9 @@ public class RecieptRepositoryTest {
     protected static final String ORDER_DATASET = "/order-dataset.xml";
     protected static final String RECIEPT_DATASET = "/reciept-dataset.xml";
 
-    private final Long ORDER_ID = 1L;
     private final Long RECIEPT_ID = 1L;
     private final BigDecimal PAYMENT = new BigDecimal("10.00");
+    private final BigDecimal CHANGE = new BigDecimal("8.01");
 
     @Autowired
     private RecieptRepository recieptRepository;
@@ -45,25 +45,22 @@ public class RecieptRepositoryTest {
     @DatabaseSetup(value = ORDER_DATASET, type = DatabaseOperation.CLEAN_INSERT)
     public void saveTest() throws AnswerKingException {
         //setup
-        Reciept reciept = createReciept(null, createBurgerOrder(ORDER_ID), PAYMENT);
-        BigDecimal expectedChange = reciept.getChange();
+        Long orderId = 1L;
+        Reciept reciept = createReciept(null, createBurgerOrder(orderId), PAYMENT);
 
         // execution
         Reciept result = recieptRepository.save(reciept);
 
         // verification
         assertEquals(RECIEPT_ID, result.getId());
-        assertEquals(ORDER_ID, result.getOrder().getId());
+        assertEquals(orderId, result.getOrder().getId());
         assertEquals(PAYMENT, result.getPayment());
-        assertEquals(expectedChange, result.getChange());
+        assertEquals(CHANGE, result.getChange());
     }
 
     @Test
     @DatabaseSetup(value = {ORDER_DATASET, RECIEPT_DATASET})
     public void findOneTest() throws AnswerKingException {
-        // setup
-        BigDecimal CHANGE = new BigDecimal("8.01");
-
         // execution
         Reciept result = recieptRepository.findOne(RECIEPT_ID);
 

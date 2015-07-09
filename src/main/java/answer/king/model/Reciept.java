@@ -1,6 +1,5 @@
 package answer.king.model;
 
-import answer.king.throwables.exception.IncompleteOrderException;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.Entity;
@@ -52,14 +51,11 @@ public class Reciept {
 		this.payment = payment;
 	}
 
-    public void calculateChange() throws IncompleteOrderException {
+	public BigDecimal getChange() {
         if (change == null) {
             change = payment.subtract(order.calculateTotalOrderCost());
         }
-    }
 
-	public BigDecimal getChange() throws IncompleteOrderException {
-        calculateChange();
 		return change;
 	}
 }

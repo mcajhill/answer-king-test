@@ -43,7 +43,7 @@ public class RecieptRepositoryTest {
 
     @Test
     @DatabaseSetup(value = ORDER_DATASET, type = DatabaseOperation.CLEAN_INSERT)
-    public void saveTest() throws AnswerKingException {
+    public void saveTest() {
         //setup
         Long orderId = 1L;
         Reciept reciept = createReciept(null, createBurgerOrder(orderId), PAYMENT);
@@ -60,7 +60,7 @@ public class RecieptRepositoryTest {
 
     @Test
     @DatabaseSetup(value = {ORDER_DATASET, RECIEPT_DATASET})
-    public void findOneTest() throws AnswerKingException {
+    public void findOneTest() {
         // execution
         Reciept result = recieptRepository.findOne(RECIEPT_ID);
 

@@ -1,0 +1,117 @@
+/* NAVBAR */
+#logo-image {
+    height: 50px;
+    width: 50px;
+}
+
+.navbar-brand {
+    font-size: 18pt;
+}
+
+/* PAGE BODY */
+h3 {
+    text-align: center;
+}
+
+/* TABLE LAYOUT */
+.panel {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.panel-heading {
+    text-align: center;
+    font-size: 14pt;
+}
+
+.panel-body {
+    text-align: center;
+}
+
+.panel-default {
+    width: 98%;
+    padding-left: 1%;
+    padding-right: 1%;
+}
+
+th {
+    text-align: center;
+}
+
+tr {
+    background-color: rgba(231, 195, 195, 0.24);
+}
+
+tr:nth-child(odd) td {
+    background-color: #faf2cc;
+}
+
+tr:nth-child(even) td {
+    background-color: rgba(231, 195, 195, 0.24);
+}
+
+.item-detail-cell {
+    width: 12%;
+    text-align: center;
+}
+
+.item-desc-cell {
+    width: 45%;
+}
+
+.item-qty-cell {
+    width: 20%;
+    text-align: center;
+}
+
+.item-add-cell {
+    width: 20%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.item-picture {
+    width: 100px;
+    height: 100px;
+}
+
+/* TABLE CONTENT */
+.item-detail-data {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+label {
+    font-weight: normal;
+    font-style: italic;
+}
+
+.quantity-input {
+    width: 35px;
+    background-color: rgba(231, 195, 195, 0.46);
+}
+
+
+.cart-button {
+    cursor: pointer;
+    padding: 1%;
+    border: 1px solid #381f09;
+    -moz-border-radius: 8px;
+    -webkit-border-radius: 8px;
+    border-radius: 8px;
+    -webkit-box-shadow: 0 0 4px rgba(0,0,0, .75);
+    -moz-box-shadow: 0 0 4px rgba(0,0,0, .75);
+    box-shadow: 0 0 4px rgba(0,0,0, .75);
+    width: 100px;
+    height: 30px;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+    font-weight: bold;
+}
+.cart-button:hover, .cart-button:focus {
+    background-color: rgba(231, 195, 195, 0.46);
+    -webkit-box-shadow: 0 0 1px rgba(0,0,0, .75);
+    -moz-box-shadow: 0 0 1px rgba(0,0,0, .75);
+    box-shadow: 0 0 1px rgba(0,0,0, .75);
+}

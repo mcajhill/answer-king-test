@@ -5,11 +5,9 @@
     <meta charset="UTF-8">
     <title>Create Your Order</title>
 
-    <link rel="stylesheet" href="../css/bootstrap/bootstrap.min.css" />
-    <link rel="stylesheet" href="../css/bootstrap/bootstrap-theme.min.css" />
-    <link rel="stylesheet" href="../css/createOrder.css" />
-
-    <script src="../js/bootstrap/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="css/bootstrap/bootstrap.min.css" />
+    <link rel="stylesheet" href="css/bootstrap/bootstrap-theme.min.css" />
+    <link rel="stylesheet" href="css/createOrder.css" />
 </head>
 
 <body>
@@ -32,17 +30,17 @@
             <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                 <ul class="nav navbar-nav">
                     <li>
-                        <img id="logo-image" src="../images/logo.jpg" />
+                        <img id="logo-image" src="images/logo.jpg" />
                     </li>
                     <li>
-                        <a class="navbar-brand" href="#">Answer King</a>
+                        <a class="navbar-brand" href="/">Answer King</a>
                     </li>
                     <li></li>
                     <li class="active">
                         <a href="">Create Order<span class="sr-only">(current)</span></a>
                     </li>
                     <li>
-                        <a href="#">Admin</a>
+                        <a href="/admin">Admin</a>
                     </li>
                 </ul>
             </div>
@@ -60,11 +58,12 @@
         <!-- default panel contents -->
         <div class="panel-heading">Menu</div>
         <div class="panel-body">
-            <p>Your order has been successfully created. Browse the items below and add some to the order.</p>
+            <p id="order-create-text"></p>
         </div>
 
-        <!-- menu table (dynamically loaded) -->
+        <!-- menu table -->
         <table class="table table-striped">
+            <!-- table header -->
             <thead>
                 <tr>
                     <th>Item</th>
@@ -73,6 +72,7 @@
                     <th>Add</th>
                 </tr>
             </thead>
+            <!-- table content -->
             <tbody>
                 <tr>
                     <!-- item detail -->
@@ -80,7 +80,7 @@
                         <table class="item-detail-data">
                             <tr>
                                 <td>
-                                    <img class="item-picture" src="../images/logo.jpg" />
+                                    <img class="item-picture" src="images/logo.jpg" />
                                 </td>
                             </tr>
                             <tr>
@@ -97,12 +97,11 @@
                     </td>
                     <!-- item description-->
                     <td class="item-desc-cell">
-                        I am trying to follow this Bootstrap tutorial here and so far have the following code below.
-                        This code seems to load the HTML page OK but it does not load the data in the .json file even
-                        though the .json file is in the same directory. I am placing these files on my web server and
-                        viewing the page through Chrome but still with an empty table. The console doesn't display
-                        anything. How can I get the data1.json data to display in the table and how could I have
-                        troublshooted this?
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut
+                        labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris
+                        nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate
+                        velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident,
+                        sunt in culpa qui officia deserunt mollit anim id est laborum.
                     </td>
                     <!-- quantity to order -->
                     <td class="item-qty-cell">
@@ -147,6 +146,16 @@
             </tbody>
         </table>
     </div>
+
+    <!-- scripts -->
+    <script src="js/bootstrap/jquery-2.1.4.js"></script>
+    <script src="js/bootstrap/bootstrap.min.js"></script>
+    <script src="js/createOrder.js"></script>
+
+    <!-- create a new order when DOM is ready -->
+    <script>
+        $(document).ready(createOrder);
+    </script>
 </body>
 
 </html>

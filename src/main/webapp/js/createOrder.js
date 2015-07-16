@@ -4,18 +4,30 @@ function createOrder() {
         type: "POST",
         dataType: "json",
 
+        accepts: {
+            json: "application/json"
+        },
+
         // on success, callback
-        success: function(json) {
-            $("#order-create-text")
-                .html("Order number " + json.id + " has just been created. Choose items to add to the order.");
+        success: function() {
+            var successMessage = "An order has just been created. Choose some items to add to it.";
+            showResponseMessage("createOrder-success", successMessage);
         },
 
         // on fail, callback
         error: function(xhr, status, errorThrown) {
-            alert("An error occurred, so an order hasn't been created. \nPlease refresh the page to try again.");
+            var failureMessage = "Failed to create a new order. Please refresh the page to try again.";
+            showResponseMessage("createOrder-failure", failureMessage);
+
             console.log("Error: " + errorThrown);
             console.log("Status: " + status);
             console.dir(xhr);
-        },
+        }
     });
+
+    function showResponseMessage(elementId, message) {
+        var messageElement = document.getElementById(elementId);
+        messageElement.removeAttribute("hidden");
+        messageElement.innerHTML = message;
+    }
 }

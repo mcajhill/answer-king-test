@@ -29,65 +29,27 @@ h3 {
 }
 
 .panel-default {
-    width: 98%;
-    padding-left: 1%;
-    padding-right: 1%;
+    width: 95%;
 }
 
 th {
     text-align: center;
+    width: 20%;
 }
 
 tr {
-    background-color: rgba(231, 195, 195, 0.24);
-}
-
-tr:nth-child(odd) td {
-    background-color: #faf2cc;
-}
-
-tr:nth-child(even) td {
-    background-color: rgba(231, 195, 195, 0.24);
-}
-
-.item-detail-cell {
-    width: 12%;
     text-align: center;
-}
-
-.item-desc-cell {
-    width: 45%;
-}
-
-.item-qty-cell {
     width: 20%;
-    text-align: center;
-}
-
-.item-add-cell {
-    width: 20%;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-.item-picture {
-    width: 100px;
-    height: 100px;
 }
 
 /* TABLE CONTENT */
-.item-detail-data {
-    margin-left: auto;
-    margin-right: auto;
-}
-
 label {
     font-weight: normal;
     font-style: italic;
 }
 
 .quantity-input {
-    width: 35px;
+    width: 50px;
     background-color: rgba(231, 195, 195, 0.46);
 }
 

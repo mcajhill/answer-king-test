@@ -63,24 +63,63 @@
             <div id="createOrder-failure" class="alert alert-danger" role="alert" hidden="hidden"></div>
         </div>
 
-        <!-- menu table - contains all items and the ability to select quantities and add to cart -->
-        <table id="items-table"></table>
+        <!-- container for the dynamic bootstrap table used to display menu items -->
+        <div id="items-table-container" class="table-responsive"></div>
+
+        <!-- the Handlebars template for the menu item table -->
+        <script id="items-table-template" type="text/x-handlebars-template">
+            <table id="items-table" class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Item Number</th>
+                        <th>What You're Buying</th>
+                        <th>Item</th>
+                        <th>Price</th>
+                        <th>Quantity Required</th>
+                        <th>Add to Cart</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {{#each this}}
+                            <tr>
+                                <td>{{this.id}}</td>
+                                <td>
+                                    <img class="item-picture" src="images/logo.jpg" />
+                                </td>
+                                <td>{{this.name}}</td>
+                                <td>{{this.price}}</td>
+                                <td>
+                                    <label>Quantity: </label>
+                                    <input class="quantity-input" type="number" placeholder="0" max="15" min="0"/>
+                                </td>
+                                <td>
+                                    <div class="cart-button">Add to Cart</div>
+                                </td>
+                            </tr>
+                    {{/each}}
+                </tbody>
+            </table>
+        </script>
     </div>
 
     <!-- scripts -->
     <script src="js/bootstrap/jquery-2.1.4.js"></script>
     <script src="js/bootstrap/bootstrap.js"></script>
     <script src="js/bootstrap/bootstrap-table.js"></script>
+    <script src="js/handlebars/handlebars-v3.0.3.js"></script>
 
+    <script src="js/models/order.js"></script>
     <script src="js/createOrder.js"></script>
     <script src="js/getAllItems.js"></script>
 
     <!-- when the DOM is ready, create a new order and retrieve all items -->
     <script>
+        var order = new OrderModel();
+
         $(document).ready( function() {
             createOrder();
-            loadTable();
-            applyStaticData();
+            ItemDataRetriever.loadItems();
         });
     </script>
 </body>

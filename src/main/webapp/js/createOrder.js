@@ -9,9 +9,10 @@ function createOrder() {
         },
 
         // on success, callback
-        success: function() {
+        success: function(json) {
             var successMessage = "An order has just been created. Choose some items to add to it.";
             showResponseMessage("createOrder-success", successMessage);
+            order.orderId = json.id;
         },
 
         // on fail, callback
@@ -19,15 +20,17 @@ function createOrder() {
             var failureMessage = "Failed to create a new order. Please refresh the page to try again.";
             showResponseMessage("createOrder-failure", failureMessage);
 
-            console.log("Error: " + errorThrown);
-            console.log("Status: " + status);
-            console.dir(xhr);
+            if (console) {
+                console.log("Error: " + errorThrown);
+                console.log("Status: " + status);
+                console.dir(xhr);
+            }
         }
     });
 
     function showResponseMessage(elementId, message) {
-        var messageElement = document.getElementById(elementId);
-        messageElement.removeAttribute("hidden");
-        messageElement.innerHTML = message;
+        var element = $("#" + elementId);
+        element.removeAttr("hidden");
+        element.html(message);
     }
 }

@@ -83,18 +83,24 @@
                 <tbody>
                     {{#each this}}
                             <tr>
-                                <td>{{this.id}}</td>
+                                <td class="item-id">{{this.id}}</td>
                                 <td>
                                     <img class="item-picture" src="images/logo.jpg" />
                                 </td>
                                 <td>{{this.name}}</td>
-                                <td>{{this.price}}</td>
+                                <td class="item-price">{{this.price}}</td>
                                 <td>
                                     <label>Quantity: </label>
                                     <input class="quantity-input" type="number" placeholder="0" max="15" min="0"/>
                                 </td>
-                                <td>
-                                    <div class="cart-button">Add to Cart</div>
+                                <td class="add-to-cart">
+                                    <div class="cart-button" onclick="addItemToCart(this)">
+                                        Add to Cart
+                                    </div>
+                                    <br/>
+                                    <div class="alert-success added-to-cart-message" role="alert" hidden="hidden">
+                                        Item added to cart!
+                                    </div>
                                 </td>
                             </tr>
                     {{/each}}
@@ -112,10 +118,11 @@
     <script src="js/models/order.js"></script>
     <script src="js/createOrder.js"></script>
     <script src="js/getAllItems.js"></script>
+    <script src="js/addToCart.js"></script>
 
     <!-- when the DOM is ready, create a new order and retrieve all items -->
     <script>
-        var order = new OrderModel();
+        var orderModel = new OrderModel();
 
         $(document).ready( function() {
             createOrder();

@@ -5,13 +5,13 @@ var ItemDataRetriever = {
         var template = Handlebars.compile(templateSource);
         var studentHTML = template(json);
 
-        $('#items-table-container').html(studentHTML);
+        $("#items-table-container").html(studentHTML);
     },
 
     loadItems: function() {
         $.ajax({
             url: "/item",
-            method: 'get',
+            method: "GET",
             success: this.handlerData
         });
     }

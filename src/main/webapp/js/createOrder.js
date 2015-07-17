@@ -12,7 +12,7 @@ function createOrder() {
         success: function(json) {
             var successMessage = "An order has just been created. Choose some items to add to it.";
             showResponseMessage("createOrder-success", successMessage);
-            order.orderId = json.id;
+            orderModel.orderId = json.id;
         },
 
         // on fail, callback

@@ -89,7 +89,7 @@ public class OrderServiceTest {
         when(orderRepository.save(order)).thenReturn(order);
 
         // execution
-        Order result = orderRepository.save(order);
+        Order result = orderService.save(order);
 
         // verification
         assertNotNull(result);

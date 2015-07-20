@@ -13,7 +13,7 @@ h3 {
     text-align: center;
 }
 
-/* TABLE LAYOUT */
+/* ITEM TABLE LAYOUT */
 .panel {
     margin-left: auto;
     margin-right: auto;
@@ -47,7 +47,7 @@ tr {
     height: 100px;
 }
 
-/* TABLE CONTENT */
+/* ITEM TABLE CONTENT */
 label {
     font-weight: normal;
     font-style: italic;
@@ -80,4 +80,18 @@ label {
     -webkit-box-shadow: 0 0 1px rgba(0,0,0, .75);
     -moz-box-shadow: 0 0 1px rgba(0,0,0, .75);
     box-shadow: 0 0 1px rgba(0,0,0, .75);
+}
+
+/* PAYMENT TABLE */
+#payment-table {
+    width: 70%;
+}
+
+#order-total {
+    width: 120px;
+}
+
+#payment-amount {
+    width: 100px;
+    height: 30px;
 }

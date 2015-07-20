@@ -21,12 +21,7 @@ function addItemToCart(cartButton) {
             url: url,
             type: "PUT",
             data: itemQty,
-            //dataType: "json",
             contentType: "application/json; charset=UTF-8",
-
-            //accepts: {
-            //    json: "application/json"
-            //},
 
             error: function(xhr, status, errorThrown) {
                 if (console) {
@@ -39,8 +34,30 @@ function addItemToCart(cartButton) {
     }
 
     function addItemToOrderModel() {
-        var item = new Item(itemId, itemPrice, itemQty);
-        orderModel.itemsCollection.push(item);
+        var items = orderModel.itemsCollection;
+        var newItem = new Item(itemId, itemPrice, itemQty);
+        var itemIndex = -1;
+
+        // if itemsCollection is empty, push without question
+        if (items.length === 0) {
+            items.push(newItem);
+        }
+        else {
+            // find the index of the item, if it's there
+            $.each(items, function (index, item) {
+                if (item.id === itemId) {
+                    itemIndex = index;
+                }
+            });
+
+            // update quantity, or add new element
+            if (itemIndex >= 0) {
+                items[itemIndex].quantity = itemQty;
+            }
+            else {
+                items.push(newItem);
+            }
+        }
     }
 
     function sendSuccessMessage() {
@@ -52,9 +69,9 @@ function addItemToCart(cartButton) {
         var totalCost = 0;
 
         $.each(orderModel.itemsCollection, function(index, item) {
-            totalCost += item.totalCost;
+            totalCost += (item.quantity * item.price);
         });
 
-        $("#order-total").html(totalCost);
+        $("#order-total").html("&pound;" + totalCost.toPrecision(3));
     }
 }

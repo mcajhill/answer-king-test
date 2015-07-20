@@ -3,9 +3,9 @@ var ItemDataRetriever = {
     handlerData: function(json) {
         var templateSource = $("#items-table-template").html();
         var template = Handlebars.compile(templateSource);
-        var studentHTML = template(json);
+        var html = template(json);
 
-        $("#items-table-container").html(studentHTML);
+        $("#items-table-container").html(html);
     },
 
     loadItems: function() {

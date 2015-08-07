@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head ng-app="AnswerKing">
+    <meta charset="UTF-8">
+    <title>Create Your Order</title>
+
+    <link rel="stylesheet" href="styles/vendor/bootstrap/bootstrap.css" />
+    <link rel="stylesheet" href="styles/createOrder.css" />
+
+    <script src="https://code.angularjs.org/1.2.25/angular.js" data-semver="1.2.25"
+            data-require="angular.js@1.2.25"></script>
+    <script data-require="angular-route@1.2.25" data-semver="1.2.25"
+            src="https://code.angularjs.org/1.2.25/angular-route.js"></script>
+
+    <script src="scripts/modules/app.js"></script>
+    <script src="scripts/controllers/OrderController.js"></script>
+    <script src="scripts/controllers/PayController.js"></script>
+    <script src="scripts/services/OrderService.js"></script>
+</head>
+
+<body>
+    <!-- navigation bar -->
+    <nav class="navbar navbar-default">
+        <div class="container-fluid">
+
+            <!-- navbar header -->
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+                        data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+            </div>
+
+            <!-- navbar content -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav">
+                    <li>
+                        <img id="logo-image" src="images/logo.jpg" />
+                    </li>
+                    <li>
+                        <a class="navbar-brand" href="#">Answer King</a>
+                    </li>
+                    <li class="active">
+                        <a href="">Create Order<span class="sr-only">(current)</span></a>
+                    </li>
+                    <li>
+                        <a href="#">Admin</a>
+                    </li>
+                </ul>
+            </div>
+
+        </div>
+    </nav>
+
+    <!-- page header -->
+    <div class="page-header">
+        <h3>Your Order</h3>
+    </div>
+
+    <div ng-view=></div>
+</body>
+
+</html>

@@ -23,9 +23,12 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 import static answer.king.util.ModelUtil.createBurgerOrder;
+import static answer.king.util.ModelUtil.createChipsOrder;
+import static answer.king.util.ModelUtil.createEmptyOrder;
 import static answer.king.util.ModelUtil.createOrdersList;
 import static answer.king.util.ModelUtil.createReciept;
 import static answer.king.util.TestUtil.JSON_UTF8_MEDIA_TYPE;
@@ -57,10 +60,12 @@ public class OrderControllerTest {
     private final Long ORDER_ID = 1L;
     private final Long ITEM_ID = 1L;
 
+    private final String GET_ORDER_PATH = "/order/" + ORDER_ID;
     private final String PAY_PATH = "/order/" + ORDER_ID + "/pay/";
     private final String ADD_ITEM_PATH = "/order/" + ORDER_ID + "/addItem/" + ITEM_ID;
 
     private final MockHttpServletRequestBuilder GET_ALL_REQUEST = get("/order").contentType(JSON_UTF8_MEDIA_TYPE);
+    private final MockHttpServletRequestBuilder GET_ORDER_REQUEST = get(GET_ORDER_PATH).contentType(JSON_UTF8_MEDIA_TYPE);
     private final MockHttpServletRequestBuilder CREATE_REQUEST = post("/order").contentType(JSON_UTF8_MEDIA_TYPE);
     private final MockHttpServletRequestBuilder ADD_ITEM_REQUEST = put(ADD_ITEM_PATH).contentType(JSON_UTF8_MEDIA_TYPE);
     private final MockHttpServletRequestBuilder PAY_REQUEST = put(PAY_PATH).contentType(JSON_UTF8_MEDIA_TYPE);
@@ -98,7 +103,7 @@ public class OrderControllerTest {
         mockMvc.perform(GET_ALL_REQUEST)
             .andExpect(status().isOk())
             .andExpect(content().contentType(JSON_UTF8_MEDIA_TYPE))
-            .andExpect(jsonPath("$", hasSize(1)))
+            .andExpect(jsonPath("$", hasSize(2)))
             .andExpect(jsonPath("$[0].id", is(ORDER_ID.intValue())))
             .andExpect(jsonPath("$[0].items", hasSize(1)))
             .andExpect(jsonPath("$[0].items[0].price", is(1.99)))
@@ -106,6 +111,32 @@ public class OrderControllerTest {
 
         // verification
         verify(orderService, times(1)).getAll();
+        verifyNoMoreInteractions(orderService);
+    }
+
+    @Test
+    public void getOrderTest() throws Exception {
+        // setup
+        Order burgerOrder = createBurgerOrder(ORDER_ID);
+        Order chipsOrder = createChipsOrder(2L);
+
+        List<Order> orders = new ArrayList<>();
+        orders.add(burgerOrder);
+        orders.add(chipsOrder);
+
+        when(orderService.getOrder(ORDER_ID)).thenReturn(orders.get(0));
+
+        // execution
+        mockMvc.perform(GET_ORDER_REQUEST)
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(JSON_UTF8_MEDIA_TYPE))
+            .andExpect(jsonPath("$.id", is(ORDER_ID.intValue())))
+            .andExpect(jsonPath("$.items", hasSize(1)))
+            .andExpect(jsonPath("$.items[0].price", is(1.99)))
+            .andExpect(jsonPath("$.items[0].quantity", is(1)));
+
+        // verification
+        verify(orderService, times(1)).getOrder(ORDER_ID);
         verifyNoMoreInteractions(orderService);
     }
 

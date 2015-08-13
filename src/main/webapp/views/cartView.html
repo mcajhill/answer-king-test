@@ -14,26 +14,36 @@
                 <tr>
                     <td align="center">
                         <!--display total cost of order -->
-                        <span id="order-total" class="input-group-addon">£</span>
+                        <span id="order-total" class="input-group-addon">£{{getOrderTotal()}}</span>
                     </td>
                     <td align="center">
                         <!-- retrieve the payment amount -->
                         <div id="payment-input" class="input-group">
-                            <span class="input-group-addon">£</span>
-                            <input id="payment-amount" class="form-control" type="number" step="0.01"
-                                   placeholder="0.00" min="0" />
+                            <span class="input-group-addon currency">£</span>
+                            <input class="form-control payment-amount" type="number" step="0.01"
+                                   placeholder="0.00" min="0" ng-model="order.reciept.payment"/>
                         </div>
                     </td>
                     <td align="center">
                         <!-- submit payment -->
-                        <button type="submit" class="btn btn-default" ng-click="...">Submit Payment</button>
+                        <button type="submit" class="btn btn-default" ng-click="pay()">Submit Payment</button>
                     </td>
                 </tr>
             </tbody>
         </table>
 
         <!-- error/success messages to the user -->
-        <div id="pay-success" class="alert alert-success" role="alert" hidden="hidden"></div>
-        <div id="pay-failure" class="alert alert-danger" role="alert" hidden="hidden"></div>
+        <div class="panel panel-success payment-success" ng-show="paymentSuccess">
+            <div class="panel-heading">Payment Success!</div>
+            <div class="panel-body">
+                Your payment has been recieved, and your change is £{{order.reciept.change}}.
+            </div>
+        </div>
+        <div class="panel panel-danger payment-failure" ng-show="paymentError">
+            <div class="panel-heading">Payment Failure!</div>
+            <div class="panel-body">
+                There was an error when processing your payment.
+            </div>
+        </div>
     </div>
 </div>

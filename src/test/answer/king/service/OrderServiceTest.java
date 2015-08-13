@@ -22,10 +22,12 @@ import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 import static answer.king.util.ModelUtil.createBurgerItem;
 import static answer.king.util.ModelUtil.createBurgerOrder;
+import static answer.king.util.ModelUtil.createChipsOrder;
 import static answer.king.util.ModelUtil.createEmptyOrder;
 import static answer.king.util.ModelUtil.createLineItem;
 import static answer.king.util.ModelUtil.createLineItemList;
@@ -69,7 +71,7 @@ public class OrderServiceTest {
         // setup
         List<Order> orders = createOrdersList();
 
-        when(orderService.getAll()).thenReturn(orders);
+        when(orderRepository.findAll()).thenReturn(orders);
 
         // execution
         List<Order> results = orderService.getAll();
@@ -79,6 +81,29 @@ public class OrderServiceTest {
         assertEquals(orders, results);
 
         verify(orderRepository, times(1)).findAll();
+        verifyNoMoreInteractions(orderRepository);
+    }
+
+    @Test
+    public void getOrderTest() {
+        // setup
+        Order burgerOrder = createBurgerOrder(1L);
+        Order chipsOrder = createChipsOrder(2L);
+
+        List<Order> orders = new ArrayList<>();
+        orders.add(burgerOrder);
+        orders.add(chipsOrder);
+
+        when(orderRepository.findOne(ORDER_ID)).thenReturn(orders.get(0));
+
+        // execution
+        Order result = orderService.getOrder(ORDER_ID);
+
+        // verification
+        assertNotNull(result);
+        assertEquals(burgerOrder, result);
+
+        verify(orderRepository, times(1)).findOne(ORDER_ID);
         verifyNoMoreInteractions(orderRepository);
     }
 

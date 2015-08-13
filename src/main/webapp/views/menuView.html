@@ -3,50 +3,66 @@
     <div class="panel-heading">Menu</div>
     <div class="panel-body">
         <!-- messages to the user regarding order creation success/failure -->
-        <div id="createOrder-success" class="alert alert-success" role="alert" hidden="hidden"></div>
-        <div id="createOrder-failure" class="alert alert-danger" role="alert" hidden="hidden"></div>
+        <div class="alert alert-success" role="alert" ng-show="order">
+            Order number {{order.id}} has been successfully created.
+        </div>
+        <div class="alert alert-danger" role="alert" ng-show="createOrderError">
+            There was an error when trying to create a new order - please refresh the page.
+        </div>
     </div>
 
-    <!-- container for the dynamic bootstrap table used to display menu items -->
-    <div id="items-table-container" class="table-responsive"></div>
-
     <!-- the template for the menu item table -->
-    <script id="items-table-template" type="text/x-handlebars-template">
-        <table id="items-table" class="table table-striped">
-            <thead>
-                <tr>
-                    <th>Item Number</th>
-                    <th>What You're Buying</th>
-                    <th>Item</th>
-                    <th>Price</th>
-                    <th>Quantity Required</th>
-                    <th>Add to Cart</th>
-                </tr>
-            </thead>
+    <div class="alert alert-danger" role="alert" ng-show="getAllItemsError">
+        There was an error retrieving the menu - please refresh the page.
+    </div>
 
-            <tbody ng-repeat="...">
-                <tr>
-                    <td class="item-id">{{  }}</td>
-                    <td>
-                        <img class="item-picture" src="../images/logo.jpg" />
-                    </td>
-                    <td>{{  }}</td>
-                    <td class="item-price">{{  }}</td>
-                    <td>
-                        <label>Quantity: </label>
-                        <input class="quantity-input" type="number" placeholder="0" max="15" min="0" />
-                    </td>
-                    <td class="add-to-cart">
-                        <div class="cart-button" ng-click="...">
-                            Add to Cart
-                        </div>
-                        <br/>
-                        <div class="alert-success added-to-cart-message" role="alert" hidden="hidden">
-                            Item added to cart!
-                        </div>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </script>
+    <table id="items-table" class="table table-striped">
+        <thead>
+            <tr>
+                <th>Item Number</th>
+                <th>What You're Buying</th>
+                <th>Item</th>
+                <th>Price</th>
+                <th>Quantity Required</th>
+                <th>Add to Cart</th>
+            </tr>
+        </thead>
+
+        <tbody ng-repeat="item in menu">
+            <tr>
+                <td class="item-id">{{item.id}}</td>
+                <td>
+                    <img class="item-picture" src="images/logo.jpg"/>
+                </td>
+                <td>{{item.name}}</td>
+                <td class="item-price">{{item.price}}</td>
+                <td>
+                    <label>Quantity: </label>
+                    <input class="quantity-input" type="number" placeholder="0" max="15" min="0"
+                           ng-model="item.quantity" />
+                </td>
+                <td class="add-to-cart">
+                    <div class="cart-button" ng-click="addToCart(item)">
+                        Add to Cart
+                    </div>
+                    <br/>
+                    <div class="alert-success" role="alert" ng-show="orderContainsItem(order.items, item)">
+                        Item added to cart!
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
 </div>
+
+<div>
+    <ul class="progressButtons">
+        <li>
+            <button type="button" class="btn btn-danger reload" ng-click="reloadPage()">Start again</button>
+        </li>
+        <li>
+            <button type="button" class="btn btn-success checkout" ng-click="checkout()">Checkout</button>
+        </li>
+    </ul>
+</div>
+

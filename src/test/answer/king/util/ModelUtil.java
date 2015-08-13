@@ -56,11 +56,8 @@ public class ModelUtil {
 
     public static List<Order> createOrdersList() {
         List<Order> orders = new ArrayList<>();
-        Order order = createEmptyOrder(1L);
-
-        order.getItems().add(createBurgerLineItem());
-        orders.add(order);
-
+        orders.add(createBurgerOrder(1L));
+        orders.add(createChipsOrder(2L));
         return orders;
     }
 
@@ -81,6 +78,12 @@ public class ModelUtil {
     public static Order createBurgerOrder(Long orderId) {
         Order order = createEmptyOrder(orderId);
         order.getItems().add(createBurgerLineItem());
+        return order;
+    }
+
+    public static Order createChipsOrder(Long orderId) {
+        Order order = createEmptyOrder(orderId);
+        order.getItems().add(createChipsLineItem());
         return order;
     }
 

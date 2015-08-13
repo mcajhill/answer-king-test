@@ -1,7 +1,7 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" ng-app="AnswerKing">
 
-<head ng-app="AnswerKing">
+<head>
     <meta charset="UTF-8">
     <title>Create Your Order</title>
 
@@ -17,6 +17,7 @@
     <script src="scripts/controllers/OrderController.js"></script>
     <script src="scripts/controllers/PayController.js"></script>
     <script src="scripts/services/OrderService.js"></script>
+    <script src="scripts/services/ItemService.js"></script>
 </head>
 
 <body>
@@ -52,7 +53,6 @@
                     </li>
                 </ul>
             </div>
-
         </div>
     </nav>
 
@@ -61,7 +61,7 @@
         <h3>Your Order</h3>
     </div>
 
-    <div ng-view=></div>
+    <div ng-view></div>
 </body>
 
 </html>

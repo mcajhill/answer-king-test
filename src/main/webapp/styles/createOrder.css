@@ -82,6 +82,24 @@ label {
     box-shadow: 0 0 1px rgba(0,0,0, .75);
 }
 
+.progressButtons {
+    list-style-type: none;
+}
+
+.progressButtons > li {
+    display: inline;
+}
+
+.reload {
+    float: left;
+    margin-left: 10px;
+}
+
+.checkout {
+    float: right;
+    margin-right: 50px;
+}
+
 /* PAYMENT TABLE */
 #payment-table {
     width: 70%;
@@ -89,9 +107,14 @@ label {
 
 #order-total {
     width: 120px;
+    height: 30px;
 }
 
-#payment-amount {
-    width: 100px;
+.currency {
+    width: 20px;
+    height: 30px;
+}
+
+.payment-amount {
     height: 30px;
 }

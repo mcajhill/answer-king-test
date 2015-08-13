@@ -1,20 +1,19 @@
 (function () {
 
-	var app = angular.module("AnswerKing", ["ng-route"]);
+	var app = angular.module("AnswerKing", ['ngRoute']);
 
 	app.config(function ($routeProvider) {
-
 		$routeProvider
-			.when("/order", {
-				templateUrl: "menuView.html",
+			.when("/", {
+				templateUrl: "views/menuView.html",
 				controller: "OrderController"
 			})
-			.when("/order/:orderId/pay", {
-				templateUrl: "cartView.html",
+			.when("/pay", {
+				templateUrl: "views/cartView.html",
 				controller: "PayController"
 			})
 			.otherwise({
-				redirectTo: "/order"
+				redirectTo: "/"
 			});
 	});
 }());

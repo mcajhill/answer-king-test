@@ -48,7 +48,7 @@
                            ng-model="item.quantity" />
                 </td>
                 <!-- current order qty-->
-                <td>{{getTotalQtyForItem(item) || 0}}</td>
+                <td>{{getTotalQtyForItem(item)}}</td>
                 <!-- add to cart -->
                 <td class="add-to-cart">
                     <div class="cart-button" ng-click="addToCart(item)">

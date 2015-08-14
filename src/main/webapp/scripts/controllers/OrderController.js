@@ -12,39 +12,42 @@ module.controller("OrderController", function ($scope, $route, $location, OrderS
 	};
 
 	$scope.addToCart = function (item) {
-		OrderService.addToCart(item).then(getOrder, onGenericFailure);
+		if (item.quantity) {
+			OrderService.addToCart(item).then(getOrder, onGenericFailure);
+		}
 	};
 
 	$scope.orderContainsItem = function (item) {
-		if (!$scope.order) {
-			return;
-		}
-
-		var items = $scope.order.items;
-		var found = false;
-
-		if (items) {
-			for (var i = 0; i < items.length && !found; i++) {
-				found = (items[i].name === item.name) && (items[i].price === item.price);
-			}
-		}
-		return found;
+		return getItemIndexFromCart(item) !== -1;
 	};
 
 	$scope.getTotalQtyForItem = function (item) {
-		if (!$scope.order) {
-			return;
+		var index = getItemIndexFromCart(item);
+
+		if (index !== -1) {
+			return $scope.order.items[index].quantity;
+		}
+		else {
+			return 0;
+		}
+	};
+
+	var getItemIndexFromCart = function (item) {
+		if (!$scope.order || !$scope.order.items) {
+			return -1;
 		}
 
 		var items = $scope.order.items;
-		if (items) {
-			for (var i = 0; i < items.length && !found; i++) {
-				var found = (items[i].name === item.name) && (items[i].price === item.price);
-				if (found) {
-					return items[i].quantity;
-				}
+
+		for (var i = 0; i < items.length; i++) {
+			var sameName = (items[i].name === item.name);
+			var samePrice = (items[i].price === item.price);
+
+			if (sameName && samePrice) {
+				return i;
 			}
 		}
+		return -1;
 	};
 
 	var getOrder = function () {

@@ -1,6 +1,6 @@
 
 var module = angular.module("AnswerKing");
-module.factory("ItemService", function ($http) {
+module.factory("ItemService", ["$http", function ($http) {
 
 	var getAllItems = function () {
 		return $http.get("/item")
@@ -12,4 +12,4 @@ module.factory("ItemService", function ($http) {
 	return {
 		getAllItems: getAllItems
 	}
-});
+}]);

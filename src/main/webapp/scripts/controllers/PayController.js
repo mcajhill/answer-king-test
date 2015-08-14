@@ -1,6 +1,6 @@
 
 var module = angular.module("AnswerKing");
-module.controller("PayController", function ($scope, OrderService) {
+module.controller("PayController", ["$scope", "OrderService", function ($scope, OrderService) {
 
 	$scope.getOrderTotalPrice = function () {
 		var order = $scope.order;
@@ -49,4 +49,4 @@ module.controller("PayController", function ($scope, OrderService) {
 	};
 
 	getOrder();
-});
+}]);

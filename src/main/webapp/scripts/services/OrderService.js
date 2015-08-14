@@ -1,6 +1,6 @@
 
 var module = angular.module("AnswerKing");
-module.factory("OrderService", function ($http) {
+module.factory("OrderService", ["$http", function ($http) {
 
 	var order = null;
 
@@ -40,4 +40,4 @@ module.factory("OrderService", function ($http) {
 		addToCart: addToCart,
 		pay: pay
 	}
-});
+}]);

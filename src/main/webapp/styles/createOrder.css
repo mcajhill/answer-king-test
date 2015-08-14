@@ -101,8 +101,13 @@ label {
 }
 
 /* PAYMENT TABLE */
+#cart-table {
+    width: 30%
+}
+
 #payment-table {
-    width: 70%;
+    width: 50%;
+    alignment: center;
 }
 
 #order-total {

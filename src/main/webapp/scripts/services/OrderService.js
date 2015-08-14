@@ -34,15 +34,10 @@
 				});
 		};
 
-		var setPayment = function (payment) {
-			order.payment = payment;
-		};
-
 		return {
 			createOrder: createOrder,
 			getOrder: getOrder,
 			addToCart: addToCart,
-			setPayment: setPayment,
 			pay: pay
 		}
 	};

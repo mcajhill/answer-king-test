@@ -2,6 +2,25 @@
     <div class="panel-heading">Payment</div>
 
     <div class="panel-body">
+        <!-- cart table -->
+        <table id="cart-table" class="table table-striped" align="center">
+            <thead>
+                <tr>
+                    <th>Item</th>
+                    <th>Quantity</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="item in order.items">
+                    <td>{{item.name}}</td>
+                    <td>{{item.quantity}}</td>
+                    <td>£ {{getItemTotalPrice(item)}}</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- payment table-->
         <table id="payment-table" class="table table-striped" align="center">
             <thead>
                 <tr>
@@ -14,7 +33,7 @@
                 <tr>
                     <td align="center">
                         <!--display total cost of order -->
-                        <span id="order-total" class="input-group-addon">£{{getOrderTotal()}}</span>
+                        <span id="order-total" class="input-group-addon">£{{getOrderTotalPrice()}}</span>
                     </td>
                     <td align="center">
                         <!-- retrieve the payment amount -->
@@ -42,7 +61,7 @@
         <div class="panel panel-danger payment-failure" ng-show="paymentError">
             <div class="panel-heading">Payment Failure!</div>
             <div class="panel-body">
-                There was an error when processing your payment.
+                There was an error whilst processing your payment. Please try again.
             </div>
         </div>
     </div>

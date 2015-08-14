@@ -7,24 +7,51 @@
 			$route.reload();
 		};
 
-		$scope.addToCart = function (item) {
-			OrderService.addToCart(item)
-				.then(onAddToCartSuccess(item), onAddToCartFailure);
-		};
-
 		$scope.checkout = function () {
 			$location.path("/pay");
 		};
 
-		$scope.orderContainsItem = function (items, item) {
+		$scope.addToCart = function (item) {
+			OrderService.addToCart(item).then(getOrder, onGenericFailure);
+		};
+
+		$scope.orderContainsItem = function (item) {
+			if (!$scope.order) {
+				return;
+			}
+
+			var items = $scope.order.items;
 			var found = false;
-			for (var i = 0; i < items.length && !found; i++) {
-				found = (items[i].id === item.id);
+
+			if (items) {
+				for (var i = 0; i < items.length && !found; i++) {
+					found = (items[i].name === item.name) && (items[i].price === item.price);
+				}
 			}
 			return found;
 		};
 
-		var onOrderCreateSuccess = function (order) {
+		$scope.getTotalQtyForItem = function (item) {
+			if (!$scope.order) {
+				return;
+			}
+
+			var items = $scope.order.items;
+			if (items) {
+				for (var i = 0; i < items.length && !found; i++) {
+					var found = (items[i].name === item.name) && (items[i].price === item.price);
+					if (found) {
+						return items[i].quantity;
+					}
+				}
+			}
+		};
+
+		var getOrder = function () {
+			OrderService.getOrder().then(onOrderCreateUpdateSuccess, onGenericFailure);
+		};
+
+		var onOrderCreateUpdateSuccess = function (order) {
 			$scope.order = order;
 		};
 
@@ -42,16 +69,12 @@
 			$scope.getAllItemsError = reason;
 		};
 
-		var onAddToCartSuccess = function (item) {
-			$scope.order.items.push(item);
-		};
-
-		var onAddToCartFailure = function (reason) {
+		var onGenericFailure = function (reason) {
 			console.log(reason);
 		};
 
 		// create a new order
-		OrderService.createOrder().then(onOrderCreateSuccess, onOrderCreateFailure);
+		OrderService.createOrder().then(onOrderCreateUpdateSuccess, onOrderCreateFailure);
 		ItemService.getAllItems().then(onGetAllItemsSuccess, onGetAllItemsFailure);
 	};
 

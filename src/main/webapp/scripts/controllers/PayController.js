@@ -2,7 +2,7 @@
 
 	var PayController = function ($scope, OrderService) {
 
-		$scope.getOrderTotal = function () {
+		$scope.getOrderTotalPrice = function () {
 			var order = $scope.order;
 			var orderTotal = 0;
 
@@ -15,14 +15,22 @@
 			return orderTotal.toFixed(2);
 		};
 
+		$scope.getItemTotalPrice = function (item) {
+			var total = item.price * item.quantity;
+			return total.toFixed(2);
+		};
+
 		$scope.pay = function () {
 			OrderService.pay($scope.order.reciept.payment)
 				.then(onPaySuccess, onPayFailure);
 		};
 
-		var onPaySuccess = function (reciept) {
-			$scope.order.reciept = reciept;
-			$scope.order.paid = true;
+		var getOrder = function () {
+			OrderService.getOrder().then(onOrderCreateUpdateSuccess, onGenericFailure);
+		};
+
+		var onPaySuccess = function () {
+			getOrder();
 			$scope.paymentSuccess = true;
 		};
 
@@ -32,15 +40,15 @@
 			$scope.paymentSuccess = false;
 		};
 
-		var onGetOrderSuccess = function (order) {
+		var onOrderCreateUpdateSuccess = function (order) {
 			$scope.order = order;
 		};
 
-		var onGetOrderFailure = function (reason) {
+		var onGenericFailure = function (reason) {
 			console.log(reason);
 		};
 
-		OrderService.getOrder().then(onGetOrderSuccess, onGetOrderFailure);
+		getOrder();
 	};
 
 	var module = angular.module("AnswerKing");

@@ -69,8 +69,9 @@ public class OrderService {
             lineItem.setQuantity(newQty);
         }
         else {
-            lineItem.setQuantity(qty);
+            lineItem.setName(item.getName());
             lineItem.setPrice(item.getPrice());
+            lineItem.setQuantity(qty);
             lineItem.setItem(item);
             items.add(lineItem);
         }

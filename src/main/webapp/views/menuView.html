@@ -23,30 +23,39 @@
                 <th>What You're Buying</th>
                 <th>Item</th>
                 <th>Price</th>
-                <th>Quantity Required</th>
+                <th>Quantity To Add</th>
+                <th>Current Quantity</th>
                 <th>Add to Cart</th>
             </tr>
         </thead>
 
         <tbody ng-repeat="item in menu">
             <tr>
+                <!-- id -->
                 <td class="item-id">{{item.id}}</td>
+                <!-- picture -->
                 <td>
                     <img class="item-picture" src="images/logo.jpg"/>
                 </td>
+                <!-- item -->
                 <td>{{item.name}}</td>
+                <!-- price -->
                 <td class="item-price">{{item.price}}</td>
+                <!-- qty being added -->
                 <td>
                     <label>Quantity: </label>
                     <input class="quantity-input" type="number" placeholder="0" max="15" min="0"
                            ng-model="item.quantity" />
                 </td>
+                <!-- current order qty-->
+                <td>{{getTotalQtyForItem(item) || 0}}</td>
+                <!-- add to cart -->
                 <td class="add-to-cart">
                     <div class="cart-button" ng-click="addToCart(item)">
                         Add to Cart
                     </div>
                     <br/>
-                    <div class="alert-success" role="alert" ng-show="orderContainsItem(order.items, item)">
+                    <div class="alert-success" role="alert" ng-show="orderContainsItem(item)">
                         Item added to cart!
                     </div>
                 </td>

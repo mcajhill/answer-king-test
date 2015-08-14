@@ -32,6 +32,10 @@ h3 {
     width: 95%;
 }
 
+.alert {
+    text-align: center;
+}
+
 th {
     text-align: center;
     width: 15%;

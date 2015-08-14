@@ -9,10 +9,11 @@
     <link rel="stylesheet" href="styles/vendor/bootstrap/bootstrap.css" />
     <link rel="stylesheet" href="styles/createOrder.css" />
 
-    <script src="https://code.angularjs.org/1.4.4/angular.js" data-semver="1.4.3"
+    <script src="https://code.angularjs.org/1.4.3/angular.js" data-semver="1.4.3"
             data-require="angular.js@1.4.3"></script>
-    <script src="https://code.angularjs.org/1.4.4/angular-route.js" data-semver="1.4.3"
+    <script src="https://code.angularjs.org/1.4.3/angular-route.js" data-semver="1.4.3"
             data-require="angular-route@1.4.3"></script>
+    <script src="http://angular-ui.github.io/ui-router/release/angular-ui-router.js"></script>
 
     <script src="scripts/modules/app.js"></script>
     <script src="scripts/controllers/OrderController.js"></script>
@@ -47,7 +48,7 @@
                         <a class="navbar-brand" href="#">Answer King</a>
                     </li>
                     <li class="active">
-                        <a href="createOrder.html">Create Order</a>
+                        <a href="index.html">Create Order</a>
                     </li>
                     <li>
                         <a href="#">Admin</a>
@@ -62,7 +63,7 @@
         <h3>Your Order</h3>
     </div>
 
-    <div ng-view></div>
+    <div ui-view="main"></div>
 </body>
 
 </html>

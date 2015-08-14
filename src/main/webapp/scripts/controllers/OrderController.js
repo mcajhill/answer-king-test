@@ -5,11 +5,13 @@ module.controller("OrderController", ["$scope", "$route", "$location", "OrderSer
 
 		$scope.reloadPage = function () {
 			$location.path('/order/menu');
-			$route.reload();
+			$route.reload();		// fix!
 		};
 
 		$scope.checkout = function () {
-			$location.path("/order/pay");
+			if ($scope.order.items.length !== 0) {
+				$location.path("/order/pay");
+			}
 		};
 
 		$scope.addToCart = function (item) {

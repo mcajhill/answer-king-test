@@ -1,20 +1,31 @@
 
-var app = angular.module("AnswerKing", ["ngRoute"]);
-app.config(["$routeProvider", "$locationProvider", function ($routeProvider, $locationProvider) {
+var app = angular.module("AnswerKing", ["ngRoute", "ui.router"]);
 
-	$routeProvider
-		.when("/order/menu", {
-			templateUrl: "views/menuView.html",
-			controller: "OrderController"
-		})
-		.when("/order/pay", {
-			templateUrl: "views/cartView.html",
-			controller: "PayController"
-		})
-		.otherwise({
-			redirectTo: "/order/menu"
-		});
+app.config(["$stateProvider", "$urlRouterProvider", "$locationProvider",
+	function ($stateProvider, $urlRouterProvider, $locationProvider) {
 
-	$locationProvider.hashPrefix();
-	$locationProvider.html5Mode(true);
+		$urlRouterProvider.otherwise("/order/menu");
+
+		$stateProvider
+			.state("menu", {
+				url: "/order/menu",
+				views: {
+					main: {
+						templateUrl: "views/menuView.html",
+						controller: "OrderController"
+					}
+				}
+			})
+			.state("pay", {
+				url: "/order/pay",
+				views: {
+					main: {
+						templateUrl: "views/cartView.html",
+						controller: "PayController"
+					}
+				}
+			});
+
+		$locationProvider.hashPrefix();
+		$locationProvider.html5Mode(true);
 }]);

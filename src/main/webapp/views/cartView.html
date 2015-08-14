@@ -55,7 +55,7 @@
         <div class="panel panel-success payment-success" ng-show="paymentSuccess">
             <div class="panel-heading">Payment Success!</div>
             <div class="panel-body">
-                Your payment has been recieved, and your change is £{{order.reciept.change}}.
+                Your payment has been recieved, and your change is £{{(order.reciept.change).toFixed(2)}}.
             </div>
         </div>
         <div class="panel panel-danger payment-failure" ng-show="paymentError">
